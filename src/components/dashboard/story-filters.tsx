@@ -2,14 +2,6 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEVELOPERS, LOOP_STAGES, STAGE_LABELS } from "@/lib/catalog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 export function StoryFilters({ showPerson }: { showPerson: boolean }) {
@@ -25,43 +17,33 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Select
+      <select
+        aria-label="Stage"
+        className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
         value={params.get("stage") ?? "all"}
-        onValueChange={(v) => set("stage", String(v ?? "all"))}
+        onChange={(e) => set("stage", e.target.value)}
       >
-        <SelectTrigger size="sm">
-          <SelectValue placeholder="Stage" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value="all">Mọi stage</SelectItem>
-            {LOOP_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {STAGE_LABELS[s]}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+        <option value="all">Mọi stage</option>
+        {LOOP_STAGES.map((s) => (
+          <option key={s} value={s}>
+            {STAGE_LABELS[s]}
+          </option>
+        ))}
+      </select>
       {showPerson ? (
-        <Select
+        <select
+          aria-label="Người"
+          className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
           value={params.get("person") ?? "all"}
-          onValueChange={(v) => set("person", String(v ?? "all"))}
+          onChange={(e) => set("person", e.target.value)}
         >
-          <SelectTrigger size="sm">
-            <SelectValue placeholder="Người" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Mọi người</SelectItem>
-              {DEVELOPERS.map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          <option value="all">Mọi người</option>
+          {DEVELOPERS.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
       ) : null}
       <Button
         size="sm"

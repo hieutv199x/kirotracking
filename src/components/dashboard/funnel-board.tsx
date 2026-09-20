@@ -6,14 +6,8 @@ import { LOOP_STAGES, STAGE_LABELS, type LoopStage, type Period } from "@/lib/ca
 import { formatDuration, formatNumber, formatPct } from "@/lib/format";
 import type { FunnelStep, StoryListItem } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function FunnelBoard({
   funnel,
@@ -28,19 +22,24 @@ export function FunnelBoard({
   const list = open ? standing[open] ?? [] : [];
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {LOOP_STAGES.map((stage, i) => {
           const step = funnel.find((f) => f.stage === stage);
           if (!step) return null;
+          const selected = open === stage;
           return (
             <button
               key={stage}
               type="button"
-              onClick={() => setOpen(stage)}
+              aria-pressed={selected}
+              onClick={() => setOpen(selected ? null : stage)}
               className="text-left"
             >
-              <Card size="sm" className="h-full hover:bg-muted/40">
+              <Card
+                size="sm"
+                className={cn("h-full hover:bg-muted/40", selected && "ring-2 ring-foreground")}
+              >
                 <CardHeader>
                   <CardDescription>
                     Bậc {i + 1} · {STAGE_LABELS[stage]}
@@ -68,32 +67,30 @@ export function FunnelBoard({
           );
         })}
       </div>
-      <Sheet open={open != null} onOpenChange={(v) => !v && setOpen(null)}>
-        <SheetContent side="right">
-          <SheetHeader>
-            <SheetTitle>
-              {open ? `Đang đứng — ${STAGE_LABELS[open]}` : "Story"}
-            </SheetTitle>
-            <SheetDescription>Story đang kẹt ở bậc này trong kỳ đang chọn.</SheetDescription>
-          </SheetHeader>
-          <div className="flex flex-col gap-2 px-4 pb-4">
-            {list.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Không có story đang đứng ở bậc này.</p>
-            ) : (
-              list.map((s) => (
-                <Link
-                  key={s.story_id}
-                  href={`/stories/${s.story_id}?period=${period}`}
-                  className="flex items-center justify-between rounded-lg border p-2 text-sm"
-                >
-                  <span>{s.story_id}</span>
-                  <Badge variant="outline">{s.developer_name}</Badge>
-                </Link>
-              ))
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </>
+      {open ? (
+        <div className="flex flex-col gap-2 rounded-xl border p-4">
+          <div className="text-sm font-medium">Đang đứng — {STAGE_LABELS[open]}</div>
+          <p className="text-xs text-muted-foreground">
+            Story đang kẹt ở bậc này trong kỳ đang chọn.
+          </p>
+          {list.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Không có story đang đứng ở bậc này.</p>
+          ) : (
+            list.map((s) => (
+              <Link
+                key={s.story_id}
+                href={`/stories/${s.story_id}?period=${period}`}
+                className="flex items-center justify-between rounded-lg border p-2 text-sm"
+              >
+                <span>{s.story_id}</span>
+                <Badge variant="outline">{s.developer_name}</Badge>
+              </Link>
+            ))
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">Bấm một bậc để xem story đang đứng.</p>
+      )}
+    </div>
   );
 }

@@ -13,14 +13,6 @@ import {
 import { DEVELOPERS, ORG_NAME, PERIODS, PERIOD_LABELS, type Period } from "@/lib/catalog";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const DESKTOP_NAV = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboardIcon },
@@ -134,21 +126,19 @@ export function AppShell({
                 </button>
               ))}
             </div>
-            <Select value={viewerId} onValueChange={(v) => v && setViewer(String(v))}>
-              <SelectTrigger size="sm" className="min-w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="lead">Lead · {ORG_NAME}</SelectItem>
-                  {DEVELOPERS.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <select
+              aria-label="Người xem"
+              value={viewerId}
+              onChange={(e) => void setViewer(e.target.value)}
+              className="h-8 min-w-40 rounded-lg border border-input bg-transparent px-2 text-sm"
+            >
+              <option value="lead">Lead · {ORG_NAME}</option>
+              {DEVELOPERS.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
           </div>
         </header>
         <main className="flex-1 px-4 py-4 md:px-6">{children}</main>
