@@ -35,9 +35,8 @@ export function GatesRow({ data }: { data: OverviewPayload }) {
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="font-heading text-3xl font-semibold tabular-nums">
-                  {g.value == null ? "—" : g.value}
+                  {g.value == null ? "—" : `${g.value}%`}
                 </span>
-                <span className="text-sm text-muted-foreground">{g.value == null ? "" : "%"}</span>
               </div>
               <Meter value={g.value ?? 0} max={100} tone={g.value != null && g.value < 50 ? "rework" : "work"} />
             </CardContent>

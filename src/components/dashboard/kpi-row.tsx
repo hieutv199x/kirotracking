@@ -39,8 +39,8 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
       <Kpi
         label="Làm lại"
         hint="Story đã đi tiếp rồi phải quay bước trước."
-        value={rework == null ? "—" : `${rework}`}
-        unit={rework == null ? "" : "%"}
+        value={rework == null ? "—" : `${rework}%`}
+        unit=""
         quiet={
           rework == null
             ? "Chưa đủ mẫu"

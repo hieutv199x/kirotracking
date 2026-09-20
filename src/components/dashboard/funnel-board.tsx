@@ -5,7 +5,7 @@ import { durationParts, formatNumber, pctInt } from "@/lib/format";
 import type { FunnelStep, StoryListItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Hint, SectionHead } from "./hint";
+import { SectionHead } from "./hint";
 
 export function FunnelBoard({
   funnel,
@@ -54,8 +54,9 @@ export function FunnelBoard({
             >
               <div className="flex min-w-0 items-center gap-1">
                 <span className="w-3 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
-                <span className="truncate text-sm font-medium">{STAGE_LABELS[stage]}</span>
-                <Hint>{STAGE_HINTS[stage]}</Hint>
+                <span className="truncate text-sm font-medium" title={STAGE_HINTS[stage]}>
+                  {STAGE_LABELS[stage]}
+                </span>
               </div>
               <Link href={href} className="flex h-6 items-center" aria-label={STAGE_LABELS[stage]}>
                 <div

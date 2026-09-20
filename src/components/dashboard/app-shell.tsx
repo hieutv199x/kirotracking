@@ -104,7 +104,7 @@ export function AppShell({
         </nav>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
+      <div className="flex min-w-0 flex-1 flex-col pb-20 md:pb-0">
         <header className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
           <div className="mr-auto text-sm font-medium">{ORG_NAME}</div>
           <div className="flex flex-wrap items-center gap-2">
