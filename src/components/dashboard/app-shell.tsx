@@ -106,10 +106,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
         <header className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
-          <div className="mr-auto">
-            <div className="text-sm font-medium">{ORG_NAME}</div>
-            <div className="text-xs text-muted-foreground">Chỉ xem số liệu loop</div>
-          </div>
+          <div className="mr-auto text-sm font-medium">{ORG_NAME}</div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex rounded-lg border p-0.5">
               {PERIODS.map((p) => (
@@ -157,7 +154,7 @@ export function AppShell({
             </div>
           </div>
         </header>
-        <main className="flex-1 px-4 py-4 md:px-6">{children}</main>
+        <main className="flex-1 px-4 py-6 md:px-8">{children}</main>
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background md:hidden">

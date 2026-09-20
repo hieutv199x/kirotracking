@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DEVELOPER_NAMES, ORG_ID, STAGE_LABELS } from "@/lib/catalog";
-import { PAGE_BLURBS, STATUS_LABELS } from "@/lib/copy";
+import { STATUS_LABELS } from "@/lib/copy";
 import { ensureReady } from "@/lib/db";
 import { getStoryDetail, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
@@ -45,7 +45,6 @@ export default async function StoryDetailPage({
             : STATUS_LABELS[rollup.status]}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground">{PAGE_BLURBS.timeline}</p>
       <StoryTimeline rollup={rollup} events={events} />
     </div>
   );

@@ -22,23 +22,21 @@ export function OverviewPanel({
   if (data.org_empty) return <OrgEmpty />;
   if (data.period_empty) return <PeriodEmpty period={data.period} />;
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <StaleBanner stale={data.stale} />
       <KpiRow data={data} />
+      {showFunnel ? (
+        <FunnelBoard
+          compact
+          funnel={data.funnel}
+          standing={standing}
+          period={data.period}
+          selected={selectedStage}
+        />
+      ) : null}
       <BottleneckRow data={data} />
       <GatesRow data={data} />
       <D08Bar data={data} />
-      {showFunnel ? (
-        <section className="flex flex-col gap-3 md:hidden">
-          <h2 className="font-heading text-sm font-medium">Phễu 8 bước</h2>
-          <FunnelBoard
-            funnel={data.funnel}
-            standing={standing}
-            period={data.period}
-            selected={selectedStage}
-          />
-        </section>
-      ) : null}
     </div>
   );
 }

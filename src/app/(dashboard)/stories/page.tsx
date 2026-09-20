@@ -5,7 +5,6 @@ import { getViewer } from "@/lib/viewer";
 import { StoryList } from "@/components/dashboard/story-list";
 import { StoryFilters } from "@/components/dashboard/story-filters";
 import { OrgEmpty, PeriodEmpty } from "@/components/dashboard/empty-states";
-import { PAGE_BLURBS } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -35,10 +34,7 @@ export default async function StoriesPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-lg font-medium">Story</h1>
-        <p className="text-sm text-muted-foreground">{PAGE_BLURBS.stories}</p>
-      </div>
+      <h1 className="font-heading text-lg font-medium">Story</h1>
       <StoryFilters showPerson={viewer.role === "lead"} />
       {!orgHasAnyStory(ORG_ID) ? (
         <OrgEmpty />

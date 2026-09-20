@@ -1,29 +1,18 @@
 import { STAGE_LABELS } from "@/lib/catalog";
-import { EVENT_LABELS, REWORK_LABELS, STAGE_HINTS, reworkPhrase } from "@/lib/copy";
-import { formatD08Split, formatDuration, formatNumber, formatTimes } from "@/lib/format";
+import { EVENT_LABELS, reworkPhrase } from "@/lib/copy";
+import { durationParts, formatDuration, formatNumber } from "@/lib/format";
 import type { StoredEvent, StoryRollup } from "@/lib/rollup";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { DualBar, LegendDot, StackedBar } from "./bars";
+import { SectionHead } from "./hint";
 
 const RESULT: Record<string, string> = {
   pass: "đạt",
-  fail: "không đạt",
-  returned: "trả spec",
-  pending: "đang chờ người",
+  fail: "fail",
+  returned: "trả",
+  pending: "chờ",
 };
-
-function roundsLabel(stage: string, rounds: number) {
-  if (rounds <= 0) return "Chưa có vòng nào";
-  const unit =
-    stage === "test"
-      ? "lần chạy test"
-      : stage === "review"
-        ? "vòng review"
-        : stage === "spec_lock"
-          ? "lần trình khóa"
-          : "vòng";
-  return `${formatNumber(rounds)} ${unit}`;
-}
 
 export function StoryTimeline({
   rollup,
@@ -33,144 +22,139 @@ export function StoryTimeline({
   events: StoredEvent[];
 }) {
   const metrics = rollup.stage_metrics;
+  const max = Math.max(
+    1,
+    ...rollup.timeline.map((s) => (metrics[s.stage]?.work_ms ?? 0) + (metrics[s.stage]?.wait_ms ?? 0)),
+  );
+  const cycle = durationParts(rollup.cycle_time_ms);
+
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="flex flex-col gap-3">
-        <p className="text-xs text-muted-foreground">
-          Tám bước của đúng story này. Mỗi bước: lúc bắt đầu / xong (hoặc đang chờ người), số vòng,
-          và số lần AI dừng để chốt. Thời gian xong cả vòng:{" "}
-          {formatDuration(rollup.cycle_time_ms, {
-            empty: "chưa commit nên chưa có",
-            zero: "chưa commit nên chưa có",
-          })}
-          .
-        </p>
-        <ol className="flex flex-col gap-3">
-          {rollup.timeline.map((step, i) => (
-            <li key={step.stage} className="flex gap-3">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex items-baseline gap-2">
+          <span className="font-heading text-3xl font-semibold tabular-nums">{cycle?.value ?? "—"}</span>
+          <span className="text-sm text-muted-foreground">{cycle ? cycle.unit : "chưa commit"}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <LegendDot tone="work" label="Làm" />
+          <LegendDot tone="wait" label="Chờ" />
+          <LegendDot tone="lock" label="Khóa spec" />
+          <LegendDot tone="review" label="Review" />
+        </div>
+      </div>
+
+      <ol className="flex flex-col gap-0">
+        {rollup.timeline.map((step, i) => {
+          const work = metrics[step.stage]?.work_ms ?? 0;
+          const wait = metrics[step.stage]?.wait_ms ?? 0;
+          const started = Boolean(step.started_at);
+          return (
+            <li key={step.stage} className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-3">
               <div className="flex flex-col items-center">
-                <div className="size-2.5 rounded-full bg-foreground" />
-                {i < rollup.timeline.length - 1 ? (
-                  <div className="w-px flex-1 bg-border" />
-                ) : null}
+                <div
+                  className={cn(
+                    "size-2.5 rounded-full",
+                    step.waiting
+                      ? "ring-2 ring-muted-foreground"
+                      : started
+                        ? "bg-foreground"
+                        : "bg-muted",
+                  )}
+                />
+                {i < rollup.timeline.length - 1 ? <div className="w-px flex-1 bg-border" /> : null}
               </div>
-              <div className="flex flex-1 flex-col gap-1 pb-4">
+              <div className="flex flex-col gap-2 pb-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-medium">{STAGE_LABELS[step.stage]}</span>
-                  {step.waiting ? <Badge variant="outline">đang chờ người</Badge> : null}
+                  {step.waiting ? <Badge variant="outline">chờ</Badge> : null}
                   {step.result ? <Badge variant="secondary">{RESULT[step.result]}</Badge> : null}
+                  {step.rounds > 0 ? (
+                    <span className="text-xs tabular-nums text-muted-foreground">{formatNumber(step.rounds)} vòng</span>
+                  ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground">{STAGE_HINTS[step.stage]}</p>
-                <div className="text-xs text-muted-foreground">
-                  {step.started_at
-                    ? `Bắt đầu ${new Date(step.started_at).toLocaleString("vi-VN")}`
-                    : "Chưa bắt đầu bước này"}
-                  {step.completed_at
-                    ? ` → xong ${new Date(step.completed_at).toLocaleString("vi-VN")}`
-                    : step.started_at
-                      ? " — chưa xong"
-                      : ""}
+                <DualBar work={work} wait={wait} max={max} />
+                <div className="flex flex-wrap gap-3 text-xs tabular-nums text-muted-foreground">
+                  <span>làm {formatDuration(work, { empty: "—", zero: "—" })}</span>
+                  <span>chờ {formatDuration(wait, { empty: "—", zero: "—" })}</span>
+                  {step.stage === "spec_lock" ? (
+                    <span>{formatNumber(rollup.d08_spec_lock)} khóa spec</span>
+                  ) : null}
+                  {step.stage === "review" ? (
+                    <span>{formatNumber(rollup.d08_review)} review</span>
+                  ) : null}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Làm{" "}
-                  {formatDuration(metrics[step.stage]?.work_ms, {
-                    empty: "chưa đo được",
-                    zero: "chưa ghi nhận",
-                  })}{" "}
-                  · Chờ{" "}
-                  {formatDuration(metrics[step.stage]?.wait_ms, {
-                    empty: "chưa đo được",
-                    zero: "không chờ",
-                  })}
-                </div>
-                <div className="text-xs text-muted-foreground">{roundsLabel(step.stage, step.rounds)}</div>
-                {step.stage === "spec_lock" ? (
-                  <div className="text-xs text-muted-foreground">
-                    {rollup.d08_spec_lock === 0
-                      ? "Chưa có lần AI dừng lúc khóa spec (happy path vẫn phải có ít nhất một lần trình khóa)."
-                      : `AI dừng ${formatTimes(rollup.d08_spec_lock)} lúc khóa spec — kể cả lần khóa thành công.`}
-                  </div>
-                ) : null}
-                {step.stage === "review" ? (
-                  <div className="text-xs text-muted-foreground">
-                    {rollup.d08_review === 0
-                      ? "Không có lần AI dừng để người chốt lúc review (vòng chỉ AI thì không đếm)."
-                      : `AI dừng ${formatTimes(rollup.d08_review)} lúc review để người chốt.`}
-                  </div>
-                ) : null}
               </div>
             </li>
-          ))}
-        </ol>
+          );
+        })}
+      </ol>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Chip label="Khóa spec" ok={rollup.first_lock_pass} />
+        <Chip label="Test xanh" ok={rollup.first_test_pass} />
+        <Chip label="Review đạt" ok={rollup.first_review_pass} />
       </div>
+
       <div className="flex flex-col gap-3">
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>Đạt ngay lần đầu — story này</CardTitle>
-            <CardDescription>Có / không ở từng cổng. “Chưa tới cổng” = story chưa đi tới bước đó.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-1 text-sm">
-            <div>Khóa spec ngay lần trình đầu: {yn(rollup.first_lock_pass)}</div>
-            <div>Test xanh lần chạy đầu: {yn(rollup.first_test_pass)}</div>
-            <div>Review đạt vòng đầu: {yn(rollup.first_review_pass)}</div>
-          </CardContent>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>Làm lại, làm hộ, kẹt ngoài loop</CardTitle>
-            <CardDescription>Ba tín hiệu khác nhau — đừng gộp.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2 text-sm">
-            <div>
-              {reworkPhrase(rollup.rework_branches)}
-              {rollup.rework
-                ? ` (${formatNumber(rollup.rework_rounds)} vòng: ${rollup.rework_branches.map((b) => REWORK_LABELS[b] ?? b).join(", ")})`
-                : ""}
-            </div>
-            <div>
-              Người làm hộ, không trả AI: {rollup.takeover ? "có" : "không"}
-            </div>
-            <div>
-              Kẹt ngoài loop (môi trường, quyền…, không phải chờ khóa spec):{" "}
-              {rollup.h04_count === 0
-                ? "không lần nào"
-                : `${formatTimes(rollup.h04_count)} · ${formatDuration(rollup.h04_ms, { empty: "chưa đo được", zero: "không đáng kể" })}`}
-            </div>
-            <div>
-              AI dừng để chốt với người:{" "}
-              {rollup.d08_total === 0
-                ? "chưa có lần nào"
-                : `${formatTimes(rollup.d08_total)} — ${formatD08Split(rollup.d08_spec_lock, rollup.d08_review, rollup.d08_other)}`}
-            </div>
-          </CardContent>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle>Nhật ký bước</CardTitle>
-            <CardDescription>Sự kiện đã cộng thành timeline — đọc visualization, không phải debugger ingest.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2">
-            {events.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Chưa có sự kiện trên story này.</p>
-            ) : (
-              events.map((ev) => (
-                <div key={ev.event_id} className="text-xs">
-                  <div className="font-medium">{EVENT_LABELS[ev.name] ?? ev.name}</div>
-                  <div className="text-muted-foreground">
-                    {new Date(ev.occurred_at).toLocaleString("vi-VN")}
-                    {ev.stage ? ` · ${STAGE_LABELS[ev.stage as keyof typeof STAGE_LABELS] ?? ev.stage}` : ""}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        <SectionHead title="AI dừng" hint="Đặc = lúc khóa spec. Mờ = lúc review." />
+        <StackedBar
+          size="lg"
+          parts={[
+            { key: "lock", n: rollup.d08_spec_lock, tone: "lock" },
+            { key: "review", n: rollup.d08_review, tone: "review" },
+            { key: "other", n: rollup.d08_other, tone: "wait" },
+          ]}
+        />
+        <div className="flex flex-wrap gap-4 text-sm">
+          <span>
+            <span className="font-medium tabular-nums">{formatNumber(rollup.d08_total)}</span>{" "}
+            <span className="text-muted-foreground">lần</span>
+          </span>
+          <span className="text-muted-foreground">{reworkPhrase(rollup.rework_branches)}</span>
+          {rollup.takeover ? <Badge variant="destructive">làm hộ</Badge> : null}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <SectionHead title="Nhật ký" />
+        {events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Chưa có sự kiện.</p>
+        ) : (
+          <ol className="flex flex-col">
+            {events.map((ev) => (
+              <li
+                key={ev.event_id}
+                className="flex items-baseline justify-between gap-3 border-b py-2 text-xs last:border-0"
+              >
+                <span className="font-medium">{EVENT_LABELS[ev.name] ?? ev.name}</span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">
+                  {new Date(ev.occurred_at).toLocaleString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
     </div>
   );
 }
 
-function yn(v: number | null) {
-  if (v == null) return "chưa tới cổng";
-  return v === 1 ? "có" : "không";
+function Chip({ label, ok }: { label: string; ok: number | null }) {
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
+      <span className="text-sm">{label}</span>
+      <span
+        className={cn(
+          "size-2.5 rounded-full",
+          ok == null ? "bg-muted" : ok === 1 ? "bg-foreground" : "bg-destructive",
+        )}
+        title={ok == null ? "chưa tới" : ok === 1 ? "đạt lần đầu" : "không đạt lần đầu"}
+      />
+    </div>
+  );
 }

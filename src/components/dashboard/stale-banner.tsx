@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { ClockIcon } from "lucide-react";
 
 export function StaleBanner({ stale }: { stale: boolean }) {
@@ -7,7 +7,6 @@ export function StaleBanner({ stale }: { stale: boolean }) {
     <Alert>
       <ClockIcon />
       <AlertTitle>Số liệu có thể chậm vài phút.</AlertTitle>
-      <AlertDescription>Đang xem bản rollup gần nhất.</AlertDescription>
     </Alert>
   );
 }

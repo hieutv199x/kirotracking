@@ -1,53 +1,46 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatShare } from "@/lib/format";
+import { Card, CardContent } from "@/components/ui/card";
+import { Hint, SectionHead } from "./hint";
+import { Meter } from "./bars";
+import { pctInt } from "@/lib/format";
 import type { OverviewPayload } from "@/lib/types";
 
 export function GatesRow({ data }: { data: OverviewPayload }) {
   const gates = [
     {
-      title: "Khóa spec ngay lần trình đầu",
-      value: formatShare(
-        data.lk02,
-        "story được khóa ngay, không trả gen lại",
-        "Chưa có story tới cổng khóa spec",
-      ),
-      how: "Người chốt tài liệu kỹ thuật lần đầu. Fail cổng này thì testcase/implement đang xây trên spec chưa chốt.",
+      title: "Khóa spec",
+      value: pctInt(data.lk02),
+      hint: "Khóa ngay lần trình đầu, không trả gen lại.",
     },
     {
-      title: "Test xanh lần chạy đầu",
-      value: formatShare(
-        data.te01,
-        "story xanh ngay lần test đầu sau implement",
-        "Chưa có story tới bước test",
-      ),
-      how: "Tín hiệu chất lượng implement trên spec + testcase đã khóa. Fail lần đầu rồi xanh sau vài vòng là bình thường.",
+      title: "Test xanh",
+      value: pctInt(data.te01),
+      hint: "Xanh ngay lần test đầu sau implement.",
     },
     {
-      title: "Review đạt vòng đầu",
-      value: formatShare(
-        data.rv01,
-        "story pass review ngay vòng đầu",
-        "Chưa có story tới bước review",
-      ),
-      how: "Cổng chất lượng cuối trước commit. Test xanh chưa đủ nếu review fail.",
+      title: "Review đạt",
+      value: pctInt(data.rv01),
+      hint: "Pass review ngay vòng đầu.",
     },
   ];
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-sm font-medium">Cổng chất lượng — đạt ngay lần đầu</h2>
-        <p className="text-xs text-muted-foreground">
-          Tỷ lệ story không bị trả về ở từng cổng người/test. Không gộp với số lần AI dừng để chốt.
-        </p>
-      </div>
-      <div className="grid gap-3 md:grid-cols-3">
+    <section className="flex flex-col gap-4">
+      <SectionHead title="Cổng đầu" hint="Tỷ lệ đạt ngay lần đầu. Thanh càng đầy càng ít bị trả." />
+      <div className="grid gap-4 md:grid-cols-3">
         {gates.map((g) => (
           <Card key={g.title} size="sm">
-            <CardHeader>
-              <CardDescription>{g.title}</CardDescription>
-              <CardTitle className="text-base text-pretty">{g.value}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-xs text-muted-foreground">{g.how}</CardContent>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium tracking-wide text-muted-foreground">{g.title}</span>
+                <Hint>{g.hint}</Hint>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-heading text-3xl font-semibold tabular-nums">
+                  {g.value == null ? "—" : g.value}
+                </span>
+                <span className="text-sm text-muted-foreground">{g.value == null ? "" : "%"}</span>
+              </div>
+              <Meter value={g.value ?? 0} max={100} tone={g.value != null && g.value < 50 ? "rework" : "work"} />
+            </CardContent>
           </Card>
         ))}
       </div>

@@ -4,7 +4,6 @@ import { getPeople, orgHasAnyStory, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
 import { PeopleTable } from "@/components/dashboard/people-table";
 import { OrgEmpty, PeriodEmpty } from "@/components/dashboard/empty-states";
-import { PAGE_BLURBS } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +19,7 @@ export default async function PeoplePage({
   const scope = viewer.role === "developer" ? viewer.id : undefined;
   const rows = getPeople(ORG_ID, period, scope);
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-lg font-medium">Theo người</h1>
-        <p className="text-sm text-muted-foreground">{PAGE_BLURBS.people}</p>
-      </div>
+    <div className="flex flex-col gap-8">
       {!orgHasAnyStory(ORG_ID) ? (
         <OrgEmpty />
       ) : rows.length === 0 ? (

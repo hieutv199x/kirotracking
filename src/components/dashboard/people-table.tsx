@@ -1,4 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { ReactNode } from "react";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -7,27 +8,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatD08Split, formatDuration, formatNumber, formatShare } from "@/lib/format";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { durationParts, formatNumber, pctInt } from "@/lib/format";
 import type { PersonRow } from "@/lib/types";
 import { InfoIcon } from "lucide-react";
+import { LegendDot, Meter, StackedBar } from "./bars";
+import { SectionHead } from "./hint";
 
 export function PeopleTable({ rows }: { rows: PersonRow[] }) {
   const small = rows.some((r) => r.sample_small);
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-xs text-muted-foreground">
-        Thời gian xong = trung vị từ story vào vòng đến commit. Người làm hộ = người sửa giúp, không
-        trả AI. AI dừng để chốt = AI tạm dừng, người quyết, AI chạy tiếp — tách lúc khóa spec và lúc
-        review. Khóa spec rồi commit = trong các story đã khóa spec, bao nhiêu % đi đến commit.
-      </p>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <SectionHead title="Theo người" hint="Sắp theo số story vào vòng, không phải xếp hạng." />
+        <div className="flex items-center gap-3">
+          <LegendDot tone="lock" label="Khóa spec" />
+          <LegendDot tone="review" label="Review" />
+        </div>
+      </div>
       {small ? (
         <Alert>
           <InfoIcon />
-          <AlertTitle>Mẫu còn nhỏ — xem xu hướng loop, chưa xếp hạng người.</AlertTitle>
-          <AlertDescription>
-            Kỳ này có người dưới 8 story. Không sort tệ nhất / giỏi nhất.
-          </AlertDescription>
+          <AlertTitle>Mẫu nhỏ — xem xu hướng, chưa xếp hạng.</AlertTitle>
         </Alert>
       ) : null}
       <div className="hidden md:block">
@@ -35,97 +37,115 @@ export function PeopleTable({ rows }: { rows: PersonRow[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>Người</TableHead>
-              <TableHead>Story vào vòng</TableHead>
-              <TableHead>Story đã commit</TableHead>
-              <TableHead>Thời gian xong (trung vị)</TableHead>
-              <TableHead>Người làm hộ</TableHead>
-              <TableHead>AI dừng để chốt</TableHead>
-              <TableHead>Khóa spec rồi commit</TableHead>
+              <TableHead>Vào / xong</TableHead>
+              <TableHead>Thời gian</TableHead>
+              <TableHead>Làm hộ</TableHead>
+              <TableHead>AI dừng</TableHead>
+              <TableHead>Khóa → commit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((r) => (
               <TableRow key={r.developer_id}>
-                <TableCell>{r.name}</TableCell>
+                <TableCell className="font-medium">{r.name}</TableCell>
                 <TableCell>
-                  {r.stories === 0 ? "Không có" : `${formatNumber(r.stories)} story`}
+                  <div className="flex w-36 flex-col gap-1">
+                    <span className="tabular-nums">
+                      {formatNumber(r.d01_committed)}/{formatNumber(r.stories)}
+                    </span>
+                    <Meter value={r.d01_committed} max={Math.max(r.stories, 1)} />
+                  </div>
+                </TableCell>
+                <TableCell className="tabular-nums">
+                  {fmtDur(r.d02_median_ms)}
                 </TableCell>
                 <TableCell>
-                  {r.d01_committed === 0 ? "Chưa commit story nào" : `${formatNumber(r.d01_committed)} story`}
+                  <div className="flex w-28 flex-col gap-1">
+                    <span className="tabular-nums">{pctOrDash(r.d03_takeover_rate)}</span>
+                    <Meter value={r.d03_takeover_rate ?? 0} max={1} tone="rework" />
+                  </div>
                 </TableCell>
                 <TableCell>
-                  {formatDuration(r.d02_median_ms, {
-                    empty: "chưa có story commit",
-                    zero: "chưa có story commit",
-                  })}
+                  <div className="flex w-36 flex-col gap-1">
+                    <span className="tabular-nums">
+                      {r.d08_median == null ? "—" : `${formatNumber(r.d08_median)} lần`}
+                    </span>
+                    <StackedBar
+                      size="sm"
+                      parts={[
+                        { key: "l", n: r.d08_spec_lock_median ?? 0, tone: "lock" },
+                        { key: "r", n: r.d08_review_median ?? 0, tone: "review" },
+                      ]}
+                    />
+                  </div>
                 </TableCell>
-                <TableCell>
-                  {formatShare(
-                    r.d03_takeover_rate,
-                    "story người làm hộ",
-                    "chưa có story",
-                  )}
-                </TableCell>
-                <TableCell>
-                  {r.d08_median == null
-                    ? "chưa có story commit để đếm"
-                    : `Trung vị ${formatNumber(r.d08_median)} lần / story — ${formatD08Split(r.d08_spec_lock_median ?? 0, r.d08_review_median ?? 0)}`}
-                </TableCell>
-                <TableCell>
-                  {formatShare(
-                    r.d04_lock_then_commit,
-                    "story đã khóa spec đi đến commit",
-                    "chưa có story khóa spec",
-                  )}
-                </TableCell>
+                <TableCell className="tabular-nums">{pctOrDash(r.d04_lock_then_commit)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-col gap-2 md:hidden">
+      <div className="flex flex-col gap-3 md:hidden">
         {rows.map((r) => (
           <Card key={r.developer_id} size="sm">
             <CardHeader>
               <CardTitle>{r.name}</CardTitle>
-              <CardDescription>
-                {r.stories === 0 ? "Không có story" : `${formatNumber(r.stories)} story vào vòng`}
-              </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-1 text-xs text-muted-foreground">
-              <div>
-                Đã commit:{" "}
-                {r.d01_committed === 0 ? "chưa có" : `${formatNumber(r.d01_committed)} story`}
-              </div>
-              <div>
-                Thời gian xong:{" "}
-                {formatDuration(r.d02_median_ms, {
-                  empty: "chưa có story commit",
-                  zero: "chưa có story commit",
-                })}
-              </div>
-              <div>
-                Người làm hộ:{" "}
-                {formatShare(r.d03_takeover_rate, "story người làm hộ", "chưa có story")}
-              </div>
-              <div>
-                AI dừng để chốt:{" "}
-                {r.d08_median == null
-                  ? "chưa có story commit để đếm"
-                  : `trung vị ${formatNumber(r.d08_median)} lần / story — ${formatD08Split(r.d08_spec_lock_median ?? 0, r.d08_review_median ?? 0)}`}
-              </div>
-              <div>
-                Khóa spec rồi commit:{" "}
-                {formatShare(
-                  r.d04_lock_then_commit,
-                  "story đã khóa spec đi đến commit",
-                  "chưa có story khóa spec",
-                )}
-              </div>
+            <CardContent className="flex flex-col gap-3">
+              <Row label="Vào / xong" value={`${formatNumber(r.d01_committed)}/${formatNumber(r.stories)}`}>
+                <Meter value={r.d01_committed} max={Math.max(r.stories, 1)} />
+              </Row>
+              <Row label="Thời gian" value={fmtDur(r.d02_median_ms)} />
+              <Row label="Làm hộ" value={pctOrDash(r.d03_takeover_rate)}>
+                <Meter value={r.d03_takeover_rate ?? 0} max={1} tone="rework" />
+              </Row>
+              <Row
+                label="AI dừng"
+                value={r.d08_median == null ? "—" : `${formatNumber(r.d08_median)} lần`}
+              >
+                <StackedBar
+                  size="sm"
+                  parts={[
+                    { key: "l", n: r.d08_spec_lock_median ?? 0, tone: "lock" },
+                    { key: "r", n: r.d08_review_median ?? 0, tone: "review" },
+                  ]}
+                />
+              </Row>
+              <Row label="Khóa → commit" value={pctOrDash(r.d04_lock_then_commit)} />
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
   );
+}
+
+function Row({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-medium tabular-nums">{value}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function fmtDur(ms: number | null) {
+  const p = durationParts(ms);
+  return p ? `${p.value} ${p.unit}` : "—";
+}
+
+function pctOrDash(rate: number | null) {
+  const n = pctInt(rate);
+  return n == null ? "—" : `${n}%`;
 }

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { LOOP_STAGES, STAGE_LABELS, type LoopStage, type Period } from "@/lib/catalog";
 import { STAGE_HINTS } from "@/lib/copy";
-import { formatDuration, formatNumber, formatShare } from "@/lib/format";
+import { durationParts, formatNumber, pctInt } from "@/lib/format";
 import type { FunnelStep, StoryListItem } from "@/lib/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Hint, SectionHead } from "./hint";
 
 export function FunnelBoard({
   funnel,
@@ -13,124 +13,90 @@ export function FunnelBoard({
   period,
   selected,
   viewerId,
+  compact = false,
 }: {
   funnel: FunnelStep[];
   standing: Record<LoopStage, StoryListItem[]>;
   period: Period;
   selected?: LoopStage | null;
   viewerId?: string;
+  compact?: boolean;
 }) {
+  const max = Math.max(1, ...funnel.map((s) => s.entered));
   const list = selected ? standing[selected] ?? [] : [];
+  const viewerQ = viewerId && viewerId !== "lead" ? `&viewer=${viewerId}` : "";
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-muted-foreground">
-        Cùng một nhóm story đã vào vòng trong kỳ. Mỗi bậc: bao nhiêu story đã tới bước đó, bao nhiêu
-        đang đứng, thường mất bao lâu, bao nhiêu phần trăm đi tiếp. Bấm một bậc để xem story đang kẹt.
-      </p>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      {!compact ? (
+        <SectionHead title="Phễu 8 bước" hint="Cùng nhóm story đã vào vòng. Bấm một bậc để xem đang đứng." />
+      ) : (
+        <SectionHead title="Phễu" hint="Độ dài thanh = số story đã tới bước đó. Chấm trắng = đang đứng." />
+      )}
+      <div className="flex flex-col gap-1">
         {LOOP_STAGES.map((stage, i) => {
           const step = funnel.find((f) => f.stage === stage);
           if (!step) return null;
           const isSelected = selected === stage;
+          const width = Math.max(8, (step.entered / max) * 100);
+          const conv = pctInt(step.conversion);
+          const dur = durationParts(step.median_ms);
+          const href = compact
+            ? `/funnel?period=${period}&stand=${stage}${viewerQ}`
+            : `?period=${period}&stand=${isSelected ? "" : stage}${viewerQ}`;
           return (
-            <Link
+            <div
               key={stage}
-              href={`?period=${period}&stand=${isSelected ? "" : stage}${viewerId && viewerId !== "lead" ? `&viewer=${viewerId}` : ""}`}
-              aria-pressed={isSelected}
-              className="text-left"
+              className={cn(
+                "grid grid-cols-[8.5rem_minmax(0,1fr)_auto] items-center gap-2 rounded-lg px-1 py-1 md:grid-cols-[9.5rem_minmax(0,1fr)_3.5rem_4.5rem]",
+                isSelected && "bg-muted",
+              )}
             >
-              <Card
-                size="sm"
-                className={cn("h-full hover:bg-muted/40", isSelected && "ring-2 ring-foreground")}
-              >
-                <CardHeader>
-                  <CardDescription>
-                    Bước {i + 1} · {STAGE_LABELS[stage]}
-                  </CardDescription>
-                  <CardTitle className="text-base">
-                    {step.entered === 0
-                      ? "Chưa có story tới bước này"
-                      : `${formatNumber(step.entered)} story đã tới`}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-1 text-xs text-muted-foreground">
-                  <p>{STAGE_HINTS[stage]}</p>
-                  <div>
-                    {step.standing === 0
-                      ? "Không có story đang đứng đây"
-                      : `${formatNumber(step.standing)} story đang đứng đây`}
-                  </div>
-                  <div>
-                    Thời gian bước này:{" "}
-                    {formatDuration(step.median_ms, {
-                      empty: "chưa đo được",
-                      zero: "chưa đo được",
-                    })}{" "}
-                    (trung vị)
-                  </div>
-                  <div>
-                    {step.conversion == null
-                      ? "Không có bước sau"
-                      : formatShare(
-                          step.conversion,
-                          "story đi tiếp bước sau",
-                          "Chưa có story để tính tỷ lệ đi tiếp",
-                        )}
-                  </div>
-                  {stage === "spec_lock" ? (
-                    <div>
-                      {step.extra?.lk03_median == null
-                        ? "Chưa có lần trả spec"
-                        : step.extra.lk03_median === 0
-                          ? "Thường khóa ngay, không bị trả spec"
-                          : `Thường bị trả spec ${formatNumber(step.extra.lk03_median)} lần trước khi khóa`}
-                    </div>
+              <div className="flex min-w-0 items-center gap-1">
+                <span className="w-3 text-xs tabular-nums text-muted-foreground">{i + 1}</span>
+                <span className="truncate text-sm font-medium">{STAGE_LABELS[stage]}</span>
+                <Hint>{STAGE_HINTS[stage]}</Hint>
+              </div>
+              <Link href={href} className="flex h-6 items-center" aria-label={STAGE_LABELS[stage]}>
+                <div
+                  className="flex h-5 items-center justify-end rounded-sm bg-foreground pr-2"
+                  style={{ width: `${width}%` }}
+                >
+                  {step.standing > 0 ? (
+                    <span className="size-1.5 rounded-full bg-background" />
                   ) : null}
-                  {stage === "review" && step.extra ? (
-                    <div>
-                      {step.extra.rv02_blocker_median == null &&
-                      step.extra.rv02_major_median == null
-                        ? "Chưa có vòng review nên chưa đếm lỗi phát hiện lúc review"
-                        : step.extra.rv02_blocker_median === 0 &&
-                            step.extra.rv02_major_median === 0
-                          ? "Thường không phát hiện lỗi lúc review"
-                          : `Phát hiện lúc review (trung vị mỗi story): ${formatNumber(step.extra.rv02_blocker_median ?? 0)} lỗi chặn merge · ${formatNumber(step.extra.rv02_major_median ?? 0)} lỗi lớn`}
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+              </Link>
+              <Link href={href} className="text-right text-sm font-medium tabular-nums">
+                {step.entered === 0 ? "—" : formatNumber(step.entered)}
+              </Link>
+              <span className="hidden text-right text-xs tabular-nums text-muted-foreground md:block">
+                {dur ? `${dur.value} ${dur.unit}` : conv == null ? "" : `${conv}%`}
+              </span>
+            </div>
           );
         })}
       </div>
-      {selected ? (
-        <div className="flex flex-col gap-2 rounded-xl border p-4">
-          <div className="text-sm font-medium">
-            Story đang đứng ở bước {STAGE_LABELS[selected]}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Các story đã vào bước này mà chưa đi tiếp trong kỳ đang chọn.
-          </p>
+      {compact ? null : selected ? (
+        <div className="flex flex-col gap-2">
+          <div className="text-sm font-medium">Đang đứng · {STAGE_LABELS[selected]}</div>
           {list.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Không có story đang kẹt ở bước này — hàng đợi bước này đang trống.
-            </p>
+            <p className="text-sm text-muted-foreground">Hàng đợi trống.</p>
           ) : (
             list.map((s) => (
               <Link
                 key={s.story_id}
                 href={`/stories/${s.story_id}?period=${period}`}
-                className="flex items-center justify-between rounded-lg border p-2 text-sm"
+                className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
               >
-                <span>{s.story_id}</span>
+                <span className="font-medium">{s.story_id}</span>
                 <Badge variant="outline">{s.developer_name}</Badge>
               </Link>
             ))
           )}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">Bấm một bước để xem story đang đứng.</p>
+        <p className="text-xs text-muted-foreground">Bấm một bước.</p>
       )}
     </div>
   );

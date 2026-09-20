@@ -1,48 +1,67 @@
 import { LOOP_STAGES, STAGE_LABELS } from "@/lib/catalog";
 import { STAGE_HINTS } from "@/lib/copy";
-import { formatDuration } from "@/lib/format";
+import { durationParts, formatDuration } from "@/lib/format";
 import type { OverviewPayload } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { DualBar, LegendDot } from "./bars";
+import { Hint, SectionHead } from "./hint";
 
 export function BottleneckRow({ data }: { data: OverviewPayload }) {
+  const max = Math.max(
+    1,
+    ...LOOP_STAGES.map((s) => {
+      const col = data.bottleneck[s];
+      return (col?.work_ms ?? 0) + (col?.wait_ms ?? 0);
+    }),
+  );
+
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <h2 className="font-heading text-sm font-medium">Nút thắt — làm vs chờ ở 8 bước</h2>
-        <p className="text-xs text-muted-foreground">
-          Mỗi cột là thời gian trung vị. <strong className="font-medium text-foreground">Làm</strong>{" "}
-          = AI/dev đang chạy bước đó. <strong className="font-medium text-foreground">Chờ</strong>{" "}
-          = đứng đợi (khóa spec = chờ người chốt). Cột tô đậm khi chờ chiếm ≥ 40% thời gian xong một
-          story — đừng tối ưu implement nếu đang kẹt ở chờ khóa spec.
-        </p>
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <SectionHead
+          title="Nút thắt"
+          hint="Cột đặc = đang làm. Cột mờ = đang chờ. Tô nền = chờ chiếm ≥ 40% thời gian xong."
+        />
+        <div className="flex items-center gap-3">
+          <LegendDot tone="work" label="Làm" />
+          <LegendDot tone="wait" label="Chờ" />
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+      <div className="hidden gap-2 md:grid md:grid-cols-8">
         {LOOP_STAGES.map((stage) => {
           const col = data.bottleneck[stage];
+          const work = col?.work_ms ?? 0;
+          const wait = col?.wait_ms ?? 0;
+          const workP = durationParts(work);
+          const waitP = durationParts(wait);
           return (
-            <div
-              key={stage}
-              className={cn(
-                "flex flex-col gap-1 rounded-xl border p-2",
-                col?.highlight && "ring-2 ring-foreground",
-              )}
-            >
-              <div className="text-xs font-medium">{STAGE_LABELS[stage]}</div>
-              <div className="text-xs text-muted-foreground">
-                Làm{" "}
-                {formatDuration(col?.work_ms, {
-                  empty: "chưa đo được",
-                  zero: "chưa ghi nhận",
-                })}
+            <div key={stage} className="flex flex-col gap-2">
+              <DualBar work={work} wait={wait} max={max} vertical highlight={col?.highlight} />
+              <div className="flex items-center gap-0.5">
+                <div className="truncate text-xs font-medium">{STAGE_LABELS[stage]}</div>
+                <Hint>{STAGE_HINTS[stage]}</Hint>
               </div>
-              <div className="text-xs text-muted-foreground">
-                Chờ{" "}
-                {formatDuration(col?.wait_ms, {
-                  empty: "chưa đo được",
-                  zero: "không chờ",
-                })}
+              <div className="text-[11px] tabular-nums text-muted-foreground">
+                {workP ? workP.value : "0"}/{waitP ? waitP.value : "0"} {waitP?.unit ?? workP?.unit ?? "—"}
               </div>
-              <p className="text-[11px] leading-snug text-muted-foreground">{STAGE_HINTS[stage]}</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex flex-col gap-3 md:hidden">
+        {LOOP_STAGES.map((stage) => {
+          const col = data.bottleneck[stage];
+          const work = col?.work_ms ?? 0;
+          const wait = col?.wait_ms ?? 0;
+          return (
+            <div key={stage} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium">{STAGE_LABELS[stage]}</span>
+                <span className="tabular-nums text-muted-foreground">
+                  {formatDuration(work, { empty: "—", zero: "—" })} /{" "}
+                  {formatDuration(wait, { empty: "—", zero: "—" })}
+                </span>
+              </div>
+              <DualBar work={work} wait={wait} max={max} highlight={col?.highlight} />
             </div>
           );
         })}

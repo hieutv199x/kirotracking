@@ -58,17 +58,3 @@ export const STATUS_LABELS = {
   committed: "đã commit",
   cancelled: "đã hủy",
 } as const;
-
-export const PAGE_BLURBS = {
-  overview:
-    "Bốn số chính của loop trong kỳ đang chọn. Mỗi ô có đơn vị và cách đọc: số story xong, thời gian từ vào vòng đến commit, tỷ lệ phải làm lại, số lần AI dừng để người chốt.",
-  funnel:
-    "Cùng nhóm story đã vào vòng. Mỗi bước: bao nhiêu story đã tới, bao nhiêu đang đứng, thường mất bao lâu, bao nhiêu phần trăm đi tiếp. Bấm một bước để xem story đang kẹt.",
-  stories:
-    "Mỗi hàng một story. “Đã ở trong vòng” tính từ lúc story vào đến giờ. “AI dừng để chốt” tách lần dừng lúc khóa spec và lúc review.",
-  people:
-    "Một hàng một người, sắp theo số story vào vòng — không phải bảng xếp hạng. Thời gian xong chỉ tính story đã commit.",
-  me: "Số liệu và story của đúng người đang xem. Lead không có trang Tôi — chọn tên developer ở header.",
-  timeline:
-    "Tám bước của đúng story này. Thời gian xong cả vòng (vào → commit) chỉ có khi story đã vào repo.",
-} as const;

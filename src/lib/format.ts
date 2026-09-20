@@ -55,6 +55,29 @@ export function formatDuration(
   return `${formatNumber(d).replace(".", ",")} ngày`;
 }
 
+export function durationParts(ms: number | null | undefined): {
+  value: string;
+  unit: string;
+} | null {
+  if (ms == null || Number.isNaN(ms) || ms <= 0) return null;
+  const hours = ms / 3_600_000;
+  if (hours < 1) {
+    return { value: formatNumber(Math.max(1, Math.round(ms / 60_000))), unit: "phút" };
+  }
+  if (hours < 48) {
+    const h = hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;
+    return { value: formatNumber(h).replace(".", ","), unit: "giờ" };
+  }
+  const days = hours / 24;
+  const d = days >= 10 ? Math.round(days) : Math.round(days * 10) / 10;
+  return { value: formatNumber(d).replace(".", ","), unit: "ngày" };
+}
+
+export function pctInt(rate: number | null | undefined) {
+  if (rate == null) return null;
+  return Math.round(rate * 100);
+}
+
 export function formatMedianP90(medianMs: number | null, p90Ms: number | null) {
   if (medianMs == null) {
     return {
