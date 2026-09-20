@@ -3,6 +3,7 @@ import { ensureReady } from "@/lib/db";
 import { getOverview, getStories, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
 import { OverviewPanel, standingByStage } from "@/components/dashboard/overview-panel";
+import { PageTitle } from "@/components/dashboard/hint";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,11 @@ export default async function OverviewPage({
   const stories = getStories(ORG_ID, period, { developerId: scope });
   const standing = standingByStage(stories);
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="font-heading text-lg font-medium">Tổng quan</h1>
+    <div className="flex flex-col gap-5">
+      <PageTitle
+        title="Tổng quan"
+        subtitle="Sức khỏe loop 8 bước — commit, cycle time, nút thắt, cổng đầu."
+      />
       <OverviewPanel data={data} standing={standing} showFunnel />
     </div>
   );

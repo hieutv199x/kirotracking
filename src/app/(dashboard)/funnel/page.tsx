@@ -6,6 +6,7 @@ import { FunnelBoard } from "@/components/dashboard/funnel-board";
 import { FunnelEmpty, OrgEmpty, PeriodEmpty } from "@/components/dashboard/empty-states";
 import { StaleBanner } from "@/components/dashboard/stale-banner";
 import { standingByStage } from "@/components/dashboard/overview-panel";
+import { PageTitle } from "@/components/dashboard/hint";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,11 @@ export default async function FunnelPage({
   const enteredLock = data.funnel.find((s) => s.stage === "spec_lock")?.entered ?? 0;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-5">
+      <PageTitle
+        title="Phễu 8 bước"
+        subtitle="Theo dõi rơi bước và story đang đứng trong vòng."
+      />
       <StaleBanner stale={data.stale} />
       {data.org_empty ? (
         <OrgEmpty />

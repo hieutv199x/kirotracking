@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Hint } from "./hint";
 import { Meter, StackedBar } from "./bars";
 import { durationParts, formatNumber, pctInt } from "@/lib/format";
@@ -11,7 +10,7 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
   const rework = pctInt(data.rework_rate);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="reveal grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Kpi
         label="Đã commit"
         hint="Story đi hết tám bước đến commit."
@@ -50,6 +49,7 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
                 ? `trung vị ${formatNumber(data.rework_rounds_median)} vòng`
                 : null
         }
+        alert={rework != null && rework >= 30}
       >
         <Meter value={rework ?? 0} max={100} tone="rework" />
       </Kpi>
@@ -83,6 +83,7 @@ function Kpi({
   unit,
   quiet,
   children,
+  alert = false,
 }: {
   label: string;
   hint: string;
@@ -90,21 +91,28 @@ function Kpi({
   unit: string;
   quiet: string | null;
   children: ReactNode;
+  alert?: boolean;
 }) {
   return (
-    <Card size="sm">
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium tracking-wide text-muted-foreground">{label}</span>
-          <Hint>{hint}</Hint>
-        </div>
-        <div className="flex items-baseline gap-2">
-          <span className="font-heading text-3xl font-semibold tracking-tight tabular-nums">{value}</span>
-          {unit ? <span className="text-sm text-muted-foreground">{unit}</span> : null}
-        </div>
-        {children}
-        {quiet ? <p className="text-xs tabular-nums text-muted-foreground">{quiet}</p> : null}
-      </CardContent>
-    </Card>
+    <div className="panel panel-pad flex flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+        <Hint>{hint}</Hint>
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span
+          className={`font-heading text-3xl font-semibold tracking-tight tabular-nums ${
+            alert ? "text-destructive" : "text-foreground"
+          }`}
+        >
+          {value}
+        </span>
+        {unit ? <span className="text-xs text-muted-foreground">{unit}</span> : null}
+      </div>
+      {children}
+      {quiet ? <p className="text-[11px] tabular-nums text-muted-foreground">{quiet}</p> : null}
+    </div>
   );
 }

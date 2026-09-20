@@ -15,11 +15,11 @@ export function BottleneckRow({ data }: { data: OverviewPayload }) {
   );
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="reveal panel panel-pad flex flex-col gap-3" style={{ animationDelay: "40ms" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SectionHead
           title="Nút thắt"
-          hint="Cột đặc = đang làm. Cột mờ = đang chờ. Tô nền = chờ chiếm ≥ 40% thời gian xong."
+          hint="Cột xanh đậm = đang làm. Cột xanh nhạt = đang chờ. Nền amber = chờ ≥ 40% thời gian xong."
         />
         <div className="flex items-center gap-3">
           <LegendDot tone="work" label="Làm" />
@@ -34,19 +34,23 @@ export function BottleneckRow({ data }: { data: OverviewPayload }) {
           const workP = durationParts(work);
           const waitP = durationParts(wait);
           return (
-            <div key={stage} className="flex flex-col gap-2">
+            <div key={stage} className="flex flex-col gap-1.5">
               <DualBar work={work} wait={wait} max={max} vertical highlight={col?.highlight} />
-              <div className="truncate text-xs font-medium" title={STAGE_HINTS[stage]}>
+              <div
+                className="truncate text-[11px] font-medium text-foreground"
+                title={STAGE_HINTS[stage]}
+              >
                 {STAGE_LABELS[stage]}
               </div>
-              <div className="text-[11px] tabular-nums text-muted-foreground">
-                {workP ? workP.value : "0"}/{waitP ? waitP.value : "0"} {waitP?.unit ?? workP?.unit ?? "—"}
+              <div className="font-heading text-[11px] tabular-nums text-muted-foreground">
+                {workP ? workP.value : "0"}/{waitP ? waitP.value : "0"}{" "}
+                {waitP?.unit ?? workP?.unit ?? "—"}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex flex-col gap-3 md:hidden">
+      <div className="flex flex-col gap-2.5 md:hidden">
         {LOOP_STAGES.map((stage) => {
           const col = data.bottleneck[stage];
           const work = col?.work_ms ?? 0;
@@ -55,7 +59,7 @@ export function BottleneckRow({ data }: { data: OverviewPayload }) {
             <div key={stage} className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-medium">{STAGE_LABELS[stage]}</span>
-                <span className="tabular-nums text-muted-foreground">
+                <span className="font-heading tabular-nums text-muted-foreground">
                   {formatDuration(work, { empty: "—", zero: "—" })} /{" "}
                   {formatDuration(wait, { empty: "—", zero: "—" })}
                 </span>

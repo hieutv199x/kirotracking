@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEVELOPERS, LOOP_STAGES, STAGE_LABELS } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function StoryFilters({ showPerson }: { showPerson: boolean }) {
   const router = useRouter();
@@ -19,7 +20,7 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
     <div className="flex flex-wrap items-center gap-2">
       <select
         aria-label="Bước"
-        className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+        className="h-8 cursor-pointer rounded-md border border-input bg-card px-2 text-sm transition-colors duration-200 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
         value={params.get("stage") ?? "all"}
         onChange={(e) => set("stage", e.target.value)}
       >
@@ -33,7 +34,7 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
       {showPerson ? (
         <select
           aria-label="Người"
-          className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+          className="h-8 cursor-pointer rounded-md border border-input bg-card px-2 text-sm transition-colors duration-200 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
           value={params.get("person") ?? "all"}
           onChange={(e) => set("person", e.target.value)}
         >
@@ -47,14 +48,16 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
       ) : null}
       <Button
         size="sm"
-        variant={params.get("rework") === "1" ? "secondary" : "outline"}
+        variant={params.get("rework") === "1" ? "default" : "outline"}
+        className={cn("cursor-pointer transition-colors duration-200")}
         onClick={() => set("rework", params.get("rework") === "1" ? "" : "1")}
       >
         Làm lại
       </Button>
       <Button
         size="sm"
-        variant={params.get("d08lock") === "3" ? "secondary" : "outline"}
+        variant={params.get("d08lock") === "3" ? "default" : "outline"}
+        className={cn("cursor-pointer transition-colors duration-200")}
         onClick={() => set("d08lock", params.get("d08lock") === "3" ? "" : "3")}
       >
         Khóa spec ≥ 3

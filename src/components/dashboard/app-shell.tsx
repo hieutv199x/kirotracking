@@ -66,15 +66,26 @@ export function AppShell({
 
   return (
     <div className="flex min-h-full flex-col md:flex-row">
-      <aside className="hidden w-56 shrink-0 border-r bg-sidebar md:flex md:flex-col">
-        <div className="flex items-center gap-2 px-4 py-4">
-          <GitCommitHorizontalIcon className="text-foreground" />
-          <div>
-            <div className="font-heading text-sm font-medium">KiroTracking</div>
-            <div className="text-xs text-muted-foreground">Loop 8 bước</div>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+      >
+        Bỏ qua điều hướng
+      </a>
+
+      <aside className="hidden w-56 shrink-0 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm md:flex md:flex-col">
+        <div className="flex items-center gap-2.5 px-4 py-5">
+          <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <GitCommitHorizontalIcon className="size-4" />
+          </span>
+          <div className="min-w-0">
+            <div className="font-heading text-sm font-semibold tracking-tight text-primary">
+              KiroTracking
+            </div>
+            <div className="text-[11px] text-muted-foreground">Loop 8 bước → commit</div>
           </div>
         </div>
-        <nav className="flex flex-1 flex-col gap-1 px-2">
+        <nav className="flex flex-1 flex-col gap-0.5 px-2 pb-4" aria-label="Chính">
           {DESKTOP_NAV.map((item) => {
             const active = pathname === item.href;
             return (
@@ -83,7 +94,8 @@ export function AppShell({
                 href={withParams(item.href, currentPeriod, currentViewer)}
                 className={cn(
                   buttonVariants({ variant: active ? "secondary" : "ghost" }),
-                  "justify-start",
+                  "cursor-pointer justify-start transition-colors duration-200",
+                  active && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
                 )}
               >
                 <item.icon data-icon="inline-start" />
@@ -95,7 +107,8 @@ export function AppShell({
             href={withParams("/me", currentPeriod, currentViewer)}
             className={cn(
               buttonVariants({ variant: pathname === "/me" ? "secondary" : "ghost" }),
-              "justify-start",
+              "cursor-pointer justify-start transition-colors duration-200",
+              pathname === "/me" && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
             )}
           >
             <UserIcon data-icon="inline-start" />
@@ -105,10 +118,13 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col pb-20 md:pb-0">
-        <header className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
-          <div className="mr-auto text-sm font-medium">{ORG_NAME}</div>
+        <header className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-b border-border/80 bg-background/85 px-4 py-2.5 backdrop-blur-md">
+          <div className="mr-auto min-w-0">
+            <div className="truncate text-sm font-semibold text-foreground">{ORG_NAME}</div>
+            <div className="text-[11px] text-muted-foreground md:hidden">KiroTracking</div>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-lg border p-0.5">
+            <div className="flex rounded-md border border-border bg-card p-0.5" role="group" aria-label="Kỳ">
               {PERIODS.map((p) => (
                 <button
                   key={p}
@@ -116,23 +132,27 @@ export function AppShell({
                   onClick={() => setPeriod(p)}
                   className={cn(
                     buttonVariants({
-                      variant: currentPeriod === p ? "secondary" : "ghost",
+                      variant: currentPeriod === p ? "default" : "ghost",
                       size: "sm",
                     }),
+                    "cursor-pointer transition-colors duration-200",
+                    currentPeriod === p && "bg-primary text-primary-foreground",
                   )}
                 >
                   {PERIOD_LABELS[p]}
                 </button>
               ))}
             </div>
-            <div className="flex flex-wrap rounded-lg border p-0.5">
+            <div className="flex flex-wrap rounded-md border border-border bg-card p-0.5" role="group" aria-label="Người xem">
               <Link
                 href={viewerHref("lead")}
                 className={cn(
                   buttonVariants({
-                    variant: currentViewer === "lead" ? "secondary" : "ghost",
+                    variant: currentViewer === "lead" ? "default" : "ghost",
                     size: "sm",
                   }),
+                  "cursor-pointer transition-colors duration-200",
+                  currentViewer === "lead" && "bg-primary text-primary-foreground",
                 )}
               >
                 Lead
@@ -143,9 +163,11 @@ export function AppShell({
                   href={viewerHref(d.id)}
                   className={cn(
                     buttonVariants({
-                      variant: currentViewer === d.id ? "secondary" : "ghost",
+                      variant: currentViewer === d.id ? "default" : "ghost",
                       size: "sm",
                     }),
+                    "cursor-pointer transition-colors duration-200",
+                    currentViewer === d.id && "bg-primary text-primary-foreground",
                   )}
                 >
                   {d.name.split(" ")[0]}
@@ -154,10 +176,15 @@ export function AppShell({
             </div>
           </div>
         </header>
-        <main className="flex-1 px-4 py-6 md:px-8">{children}</main>
+        <main id="main" className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-5 md:px-6 md:py-6">
+          {children}
+        </main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-background md:hidden">
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-card/95 backdrop-blur-md md:hidden"
+        aria-label="Mobile"
+      >
         {MOBILE_NAV.map((item) => {
           const active = pathname === item.href;
           return (
@@ -165,11 +192,11 @@ export function AppShell({
               key={item.href}
               href={withParams(item.href, currentPeriod, currentViewer)}
               className={cn(
-                "flex flex-1 flex-col items-center gap-1 py-2 text-xs",
-                active ? "text-foreground" : "text-muted-foreground",
+                "flex flex-1 cursor-pointer flex-col items-center gap-0.5 py-2.5 text-[11px] transition-colors duration-200",
+                active ? "text-primary" : "text-muted-foreground",
               )}
             >
-              <item.icon />
+              <item.icon className={cn("size-5", active && "text-primary")} />
               {item.label}
             </Link>
           );

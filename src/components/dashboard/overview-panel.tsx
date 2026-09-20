@@ -22,7 +22,7 @@ export function OverviewPanel({
   if (data.org_empty) return <OrgEmpty />;
   if (data.period_empty) return <PeriodEmpty period={data.period} />;
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-5">
       <StaleBanner stale={data.stale} />
       <KpiRow data={data} />
       {showFunnel ? (

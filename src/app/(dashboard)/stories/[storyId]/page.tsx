@@ -32,10 +32,15 @@ export default async function StoryDetailPage({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Link href={`/stories?period=${period}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+        <Link
+          href={`/stories?period=${period}`}
+          className={buttonVariants({ variant: "ghost", size: "sm" }) + " cursor-pointer"}
+        >
           ← Story
         </Link>
-        <h1 className="font-heading text-lg font-medium">{rollup.story_id}</h1>
+        <h1 className="font-heading text-xl font-semibold tracking-tight text-primary">
+          {rollup.story_id}
+        </h1>
         <Badge variant="outline">
           {DEVELOPER_NAMES[rollup.developer_id] ?? rollup.developer_id}
         </Badge>

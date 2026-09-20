@@ -5,6 +5,7 @@ import { getViewer } from "@/lib/viewer";
 import { StoryList } from "@/components/dashboard/story-list";
 import { StoryFilters } from "@/components/dashboard/story-filters";
 import { OrgEmpty, PeriodEmpty } from "@/components/dashboard/empty-states";
+import { PageTitle } from "@/components/dashboard/hint";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function StoriesPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-lg font-medium">Story</h1>
+      <PageTitle title="Story" subtitle="Danh sách story trong kỳ — lọc theo bước, người, làm lại." />
       <StoryFilters showPerson={viewer.role === "lead"} />
       {!orgHasAnyStory(ORG_ID) ? (
         <OrgEmpty />

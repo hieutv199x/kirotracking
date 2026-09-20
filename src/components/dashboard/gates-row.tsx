@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Hint, SectionHead } from "./hint";
 import { Meter } from "./bars";
 import { pctInt } from "@/lib/format";
@@ -23,25 +22,32 @@ export function GatesRow({ data }: { data: OverviewPayload }) {
     },
   ];
   return (
-    <section className="flex flex-col gap-4">
+    <section className="reveal flex flex-col gap-3" style={{ animationDelay: "80ms" }}>
       <SectionHead title="Cổng đầu" hint="Tỷ lệ đạt ngay lần đầu. Thanh càng đầy càng ít bị trả." />
-      <div className="grid gap-4 md:grid-cols-3">
-        {gates.map((g) => (
-          <Card key={g.title} size="sm">
-            <CardContent className="flex flex-col gap-3">
+      <div className="grid gap-3 md:grid-cols-3">
+        {gates.map((g) => {
+          const weak = g.value != null && g.value < 50;
+          return (
+            <div key={g.title} className="panel panel-pad flex flex-col gap-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium tracking-wide text-muted-foreground">{g.title}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {g.title}
+                </span>
                 <Hint>{g.hint}</Hint>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-heading text-3xl font-semibold tabular-nums">
+              <div className="flex items-baseline gap-1.5">
+                <span
+                  className={`font-heading text-3xl font-semibold tabular-nums ${
+                    weak ? "text-destructive" : "text-foreground"
+                  }`}
+                >
                   {g.value == null ? "—" : `${g.value}%`}
                 </span>
               </div>
-              <Meter value={g.value ?? 0} max={100} tone={g.value != null && g.value < 50 ? "rework" : "work"} />
-            </CardContent>
-          </Card>
-        ))}
+              <Meter value={g.value ?? 0} max={100} tone={weak ? "rework" : "ok"} />
+            </div>
+          );
+        })}
       </div>
     </section>
   );

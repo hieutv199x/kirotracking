@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+export type BarTone = "work" | "wait" | "rework" | "lock" | "review" | "ok" | "cta";
+
 export function Meter({
   value,
   max,
@@ -8,14 +10,14 @@ export function Meter({
 }: {
   value: number;
   max: number;
-  tone?: "work" | "wait" | "rework" | "lock" | "review";
+  tone?: BarTone;
   className?: string;
 }) {
   const pct = max <= 0 ? 0 : Math.min(100, Math.max(0, (value / max) * 100));
   return (
-    <div className={cn("h-2 overflow-hidden rounded-full bg-muted", className)}>
+    <div className={cn("h-1.5 overflow-hidden rounded-sm bg-muted", className)}>
       <div
-        className={cn("h-full rounded-full", fillClass(tone))}
+        className={cn("meter-fill h-full rounded-sm", fillClass(tone))}
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -27,17 +29,17 @@ export function StackedBar({
   className,
   size = "md",
 }: {
-  parts: { key: string; n: number; tone: "work" | "wait" | "rework" | "lock" | "review" }[];
+  parts: { key: string; n: number; tone: BarTone }[];
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
   const total = parts.reduce((s, p) => s + Math.max(0, p.n), 0);
   const h = size === "lg" ? "h-3" : size === "sm" ? "h-1.5" : "h-2";
   if (total <= 0) {
-    return <div className={cn(h, "rounded-full bg-muted", className)} />;
+    return <div className={cn(h, "rounded-sm bg-muted", className)} />;
   }
   return (
-    <div className={cn("flex overflow-hidden rounded-full bg-muted", h, className)}>
+    <div className={cn("meter-fill flex overflow-hidden rounded-sm bg-muted", h, className)}>
       {parts.map((p) =>
         p.n <= 0 ? null : (
           <div
@@ -70,25 +72,36 @@ export function DualBar({
     return (
       <div
         className={cn(
-          "flex h-24 items-end justify-center gap-1 rounded-lg px-1",
-          highlight && "bg-muted",
+          "flex h-28 items-end justify-center gap-1 rounded-md px-1 transition-colors duration-200",
+          highlight && "bg-accent ring-1 ring-cta/40",
         )}
       >
         <div
-          className="w-3 rounded-t-sm bg-foreground"
-          style={{ height: `${Math.max(workPct, work > 0 ? 6 : 0)}%` }}
+          className="meter-fill-y w-3 rounded-t-sm bg-work"
+          style={{ height: `${Math.max(workPct, work > 0 ? 8 : 0)}%` }}
         />
         <div
-          className="w-3 rounded-t-sm bg-muted-foreground/35"
-          style={{ height: `${Math.max(waitPct, wait > 0 ? 6 : 0)}%` }}
+          className="meter-fill-y w-3 rounded-t-sm bg-wait"
+          style={{ height: `${Math.max(waitPct, wait > 0 ? 8 : 0)}%` }}
         />
       </div>
     );
   }
   return (
-    <div className={cn("flex h-2 overflow-hidden rounded-full bg-muted", highlight && "ring-1 ring-foreground")}>
-      <div className="h-full bg-foreground" style={{ width: `${workPct}%` }} />
-      <div className="h-full bg-muted-foreground/35" style={{ width: `${waitPct}%` }} />
+    <div
+      className={cn(
+        "flex h-1.5 overflow-hidden rounded-sm bg-muted transition-shadow duration-200",
+        highlight && "ring-1 ring-cta",
+      )}
+    >
+      <div
+        className="meter-fill h-full bg-work"
+        style={{ width: `${workPct}%` }}
+      />
+      <div
+        className="meter-fill h-full bg-wait"
+        style={{ width: `${waitPct}%` }}
+      />
     </div>
   );
 }
@@ -97,28 +110,33 @@ export function LegendDot({
   tone,
   label,
 }: {
-  tone: "work" | "wait" | "rework" | "lock" | "review";
+  tone: BarTone;
   label: string;
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-      <span className={cn("size-2 rounded-full", fillClass(tone))} />
+      <span className={cn("size-2 rounded-sm", fillClass(tone))} />
       {label}
     </span>
   );
 }
 
-function fillClass(tone: "work" | "wait" | "rework" | "lock" | "review") {
+function fillClass(tone: BarTone) {
   switch (tone) {
     case "wait":
-      return "bg-muted-foreground/35";
+      return "bg-wait";
     case "rework":
       return "bg-destructive";
     case "review":
-      return "bg-foreground/35";
+      return "bg-secondary-foreground/45";
     case "lock":
+      return "bg-primary";
+    case "ok":
+      return "bg-ok";
+    case "cta":
+      return "bg-cta";
     case "work":
     default:
-      return "bg-foreground";
+      return "bg-work";
   }
 }
