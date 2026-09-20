@@ -31,6 +31,24 @@ npm test
 npm run build
 ```
 
+## Kiro integration (docs)
+
+| Doc | What it covers |
+| --- | --- |
+| **[docs/kiro-client-hook-guide.md](docs/kiro-client-hook-guide.md)** | **Build the machine-side collector**: CLI `kirotrack` + Agent Hook → `POST /v1/ingest/events`. Sample hook: [`examples/kirotrack.hook.json`](examples/kirotrack.hook.json) |
+| [docs/kiro-metric-ingestion.md](docs/kiro-metric-ingestion.md) | Ingest contract, identity from token, queue/retry, rollup timing |
+| [docs/kiro-developer-metrics.md](docs/kiro-developer-metrics.md) | Metric catalog (H-*, D-*, gates) and event → metric mapping |
+| [docs/kirotracking-app-design.md](docs/kirotracking-app-design.md) | Product / dashboard design (visualization only) |
+
+Same guide also available as [`docs/kiro-client-hook.md`](docs/kiro-client-hook.md).
+
+**Quick start (collector on the Kiro machine):**
+
+1. Copy `examples/kirotrack.hook.json` → `~/.kiro/hooks/kirotrack.json`
+2. Build CLI `kirotrack` per the hook guide (always `exit 0`; never block the agent)
+3. Store Bearer token in `~/.kirotrack/credentials` (mode `600`) — demo: `kt_dev_lan`
+4. Point `KIROTRACK_URL` at your ingest base (local MVP: `http://127.0.0.1:43123`)
+
 ## POST events
 
 Contract matches `POST /v1/ingest/events`: Bearer token, batch envelope, idempotent `event_id`, `202` with `{ accepted, duplicate, rejected }`. Catalog metrics are **not** computed on this request; a debounce rollup job updates dashboard tables afterwards.
@@ -39,10 +57,10 @@ Demo tokens (bound to `org_id=acme` + `developer_id` on the server — client `a
 
 | Token | Developer |
 | --- | --- |
-| `kt_dev_lan` | Lan Nguyễn |
-| `kt_dev_minh` | Minh Trần |
-| `kt_dev_hoa` | Hoa Phạm |
-| `kt_dev_khang` | Khang Lê |
+| `kt_dev_lan` | Lan Nguyen |
+| `kt_dev_minh` | Minh Tran |
+| `kt_dev_hoa` | Hoa Pham |
+| `kt_dev_khang` | Khang Le |
 
 ```bash
 curl -sS -X POST http://127.0.0.1:43123/v1/ingest/events \
@@ -69,13 +87,9 @@ curl -sS -X POST http://127.0.0.1:43123/v1/ingest/events \
 
 Retry the same `event_id` — `duplicate` increments, the story is not counted twice. Unknown `name` rejects that row only (HTTP still 202). Over 100 events or 256 KB → 413.
 
-## Collector (Kiro client) — không nằm trong dashboard
-
-Dashboard không cài hook. Để máy Kiro đẩy event: xem **[docs/kiro-client-hook.md](docs/kiro-client-hook.md)** (file hook mẫu: `examples/kirotrack.hook.json`). Copy hook vào `~/.kiro/hooks/`, build CLI `kirotrack` theo hướng dẫn, token local `kt_dev_lan`.
-
 ## UI
 
-Vietnamese visualization only: **Tổng quan**, **Phễu 8 bước**, **Story** (+ timeline), **Theo người**, **Tôi**. Switch period (Hôm nay / 7 ngày / 30 ngày) and viewer (lead vs developer) in the header. There are no collector, enroll, or hook-setup screens.
+English visualization: **Overview**, **8-step funnel**, **Stories** (+ timeline), **By person**, **Me**. Switch period (Today / 7 days / 30 days) and viewer (lead vs developer) in the header. There are no collector, enroll, or hook-setup screens.
 
 ## Layout
 
@@ -86,3 +100,5 @@ Vietnamese visualization only: **Tổng quan**, **Phễu 8 bước**, **Story** 
 | `src/lib/ingest.ts` | Validate + append-only SQLite `events` |
 | `src/lib/rollup.ts` | Dirty-story job → `story_rollups` / `org_period_rollups` |
 | `src/app/(dashboard)` | Visualization pages |
+| `docs/` | Kiro integration + product design docs |
+| `examples/kirotrack.hook.json` | Sample Kiro Agent Hook |
