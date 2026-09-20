@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { LOOP_STAGES, STAGE_LABELS, type LoopStage, type Period } from "@/lib/catalog";
 import { formatDuration, formatNumber, formatPct } from "@/lib/format";
@@ -13,13 +10,14 @@ export function FunnelBoard({
   funnel,
   standing,
   period,
+  selected,
 }: {
   funnel: FunnelStep[];
   standing: Record<LoopStage, StoryListItem[]>;
   period: Period;
+  selected?: LoopStage | null;
 }) {
-  const [open, setOpen] = useState<LoopStage | null>(null);
-  const list = open ? standing[open] ?? [] : [];
+  const list = selected ? standing[selected] ?? [] : [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -27,18 +25,17 @@ export function FunnelBoard({
         {LOOP_STAGES.map((stage, i) => {
           const step = funnel.find((f) => f.stage === stage);
           if (!step) return null;
-          const selected = open === stage;
+          const isSelected = selected === stage;
           return (
-            <button
+            <Link
               key={stage}
-              type="button"
-              aria-pressed={selected}
-              onClick={() => setOpen(selected ? null : stage)}
+              href={`?period=${period}&stand=${isSelected ? "" : stage}`}
+              aria-pressed={isSelected}
               className="text-left"
             >
               <Card
                 size="sm"
-                className={cn("h-full hover:bg-muted/40", selected && "ring-2 ring-foreground")}
+                className={cn("h-full hover:bg-muted/40", isSelected && "ring-2 ring-foreground")}
               >
                 <CardHeader>
                   <CardDescription>
@@ -63,13 +60,13 @@ export function FunnelBoard({
                   ) : null}
                 </CardContent>
               </Card>
-            </button>
+            </Link>
           );
         })}
       </div>
-      {open ? (
+      {selected ? (
         <div className="flex flex-col gap-2 rounded-xl border p-4">
-          <div className="text-sm font-medium">Đang đứng — {STAGE_LABELS[open]}</div>
+          <div className="text-sm font-medium">Đang đứng — {STAGE_LABELS[selected]}</div>
           <p className="text-xs text-muted-foreground">
             Story đang kẹt ở bậc này trong kỳ đang chọn.
           </p>

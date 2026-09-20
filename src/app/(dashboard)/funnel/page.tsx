@@ -1,4 +1,4 @@
-import { ORG_ID } from "@/lib/catalog";
+import { LOOP_STAGES, ORG_ID, type LoopStage } from "@/lib/catalog";
 import { ensureReady } from "@/lib/db";
 import { getOverview, getStories, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
@@ -12,11 +12,15 @@ export const dynamic = "force-dynamic";
 export default async function FunnelPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; stand?: string }>;
 }) {
   await ensureReady();
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, stand } = await searchParams;
   const period = parsePeriod(periodParam);
+  const selected =
+    stand && (LOOP_STAGES as readonly string[]).includes(stand)
+      ? (stand as LoopStage)
+      : null;
   const viewer = await getViewer();
   const scope = viewer.role === "developer" ? viewer.id : undefined;
   const data = getOverview(ORG_ID, period, scope);
@@ -35,7 +39,12 @@ export default async function FunnelPage({
       ) : enteredLock === 0 ? (
         <FunnelEmpty />
       ) : (
-        <FunnelBoard funnel={data.funnel} standing={standing} period={period} />
+        <FunnelBoard
+          funnel={data.funnel}
+          standing={standing}
+          period={period}
+          selected={selected}
+        />
       )}
     </div>
   );

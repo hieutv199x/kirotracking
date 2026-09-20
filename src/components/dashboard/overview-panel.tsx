@@ -12,10 +12,12 @@ export function OverviewPanel({
   data,
   standing,
   showFunnel = false,
+  selectedStage = null,
 }: {
   data: OverviewPayload;
   standing: Record<LoopStage, StoryListItem[]>;
   showFunnel?: boolean;
+  selectedStage?: LoopStage | null;
 }) {
   if (data.org_empty) return <OrgEmpty />;
   if (data.period_empty) return <PeriodEmpty period={data.period} />;
@@ -29,7 +31,12 @@ export function OverviewPanel({
       {showFunnel ? (
         <section className="flex flex-col gap-3 md:hidden">
           <h2 className="font-heading text-sm font-medium">Phễu 8 bước</h2>
-          <FunnelBoard funnel={data.funnel} standing={standing} period={data.period} />
+          <FunnelBoard
+            funnel={data.funnel}
+            standing={standing}
+            period={data.period}
+            selected={selectedStage}
+          />
         </section>
       ) : null}
     </div>

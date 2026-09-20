@@ -53,8 +53,9 @@ export function AppShell({
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  async function setViewer(next: string) {
-    await fetch("/api/viewer", {
+  function setViewer(next: string) {
+    document.cookie = `kt_viewer=${encodeURIComponent(next)}; Path=/; SameSite=Lax`;
+    void fetch("/api/viewer", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ viewer: next }),
