@@ -1,0 +1,48 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "kirotrack-session",
+      "trigger": "SessionStart",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-prompt",
+      "trigger": "UserPromptSubmit",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-spec-files",
+      "trigger": "PostFileCreate",
+      "matcher": "\\.kiro/specs/",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-spec-save",
+      "trigger": "PostFileSave",
+      "matcher": "\\.kiro/specs/",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-pre-task",
+      "trigger": "PreTaskExec",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-post-task",
+      "trigger": "PostTaskExec",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-tools",
+      "trigger": "PostToolUse",
+      "matcher": "shell|executeBash|execute_bash",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    },
+    {
+      "name": "kirotrack-stop",
+      "trigger": "Stop",
+      "action": { "type": "command", "command": "kirotrack hook", "timeout": 5 }
+    }
+  ]
+}

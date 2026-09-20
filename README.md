@@ -69,6 +69,10 @@ curl -sS -X POST http://127.0.0.1:43123/v1/ingest/events \
 
 Retry the same `event_id` — `duplicate` increments, the story is not counted twice. Unknown `name` rejects that row only (HTTP still 202). Over 100 events or 256 KB → 413.
 
+## Collector (Kiro client) — không nằm trong dashboard
+
+Dashboard không cài hook. Để máy Kiro đẩy event: xem **[docs/kiro-client-hook.md](docs/kiro-client-hook.md)** (file hook mẫu: `examples/kirotrack.hook.json`). Copy hook vào `~/.kiro/hooks/`, build CLI `kirotrack` theo hướng dẫn, token local `kt_dev_lan`.
+
 ## UI
 
 Vietnamese visualization only: **Tổng quan**, **Phễu 8 bước**, **Story** (+ timeline), **Theo người**, **Tôi**. Switch period (Hôm nay / 7 ngày / 30 ngày) and viewer (lead vs developer) in the header. There are no collector, enroll, or hook-setup screens.
