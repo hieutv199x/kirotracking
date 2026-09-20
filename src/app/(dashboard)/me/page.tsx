@@ -5,6 +5,7 @@ import { getViewer } from "@/lib/viewer";
 import { OverviewPanel, standingByStage } from "@/components/dashboard/overview-panel";
 import { StoryList } from "@/components/dashboard/story-list";
 import { MeEmpty } from "@/components/dashboard/empty-states";
+import { PAGE_BLURBS } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,10 @@ export default async function MePage({
   if (viewer.role !== "developer") {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="font-heading text-lg font-medium">Tôi</h1>
+        <div className="flex flex-col gap-1">
+          <h1 className="font-heading text-lg font-medium">Tôi</h1>
+          <p className="text-sm text-muted-foreground">{PAGE_BLURBS.me}</p>
+        </div>
         <MeEmpty />
       </div>
     );
@@ -30,7 +34,10 @@ export default async function MePage({
   const standing = standingByStage(stories);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-heading text-lg font-medium">Tôi · {viewer.name}</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="font-heading text-lg font-medium">Tôi · {viewer.name}</h1>
+        <p className="text-sm text-muted-foreground">{PAGE_BLURBS.me}</p>
+      </div>
       {stories.length === 0 ? (
         <MeEmpty />
       ) : (

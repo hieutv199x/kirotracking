@@ -12,8 +12,8 @@ export function OrgEmpty() {
       <EmptyHeader>
         <EmptyTitle>Chưa có story để hiển thị.</EmptyTitle>
         <EmptyDescription>
-          Khi vòng Kiro trên máy đã đẩy event và job đã cộng, tổng quan sẽ hiện thông
-          lượng, cycle time, phễu 8 bước.
+          Khi vòng Kiro trên máy đã đẩy event và job đã cộng, tổng quan sẽ hiện số story
+          vào/commit, thời gian xong một story, tỷ lệ phải làm lại, và phễu 8 bước.
         </EmptyDescription>
       </EmptyHeader>
     </Empty>

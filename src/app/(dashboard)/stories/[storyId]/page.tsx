@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DEVELOPER_NAMES, ORG_ID, STAGE_LABELS } from "@/lib/catalog";
+import { PAGE_BLURBS, STATUS_LABELS } from "@/lib/copy";
 import { ensureReady } from "@/lib/db";
 import { getStoryDetail, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
@@ -39,9 +40,12 @@ export default async function StoryDetailPage({
           {DEVELOPER_NAMES[rollup.developer_id] ?? rollup.developer_id}
         </Badge>
         <Badge variant="secondary">
-          {rollup.current_stage ? STAGE_LABELS[rollup.current_stage] : rollup.status}
+          {rollup.current_stage
+            ? STAGE_LABELS[rollup.current_stage]
+            : STATUS_LABELS[rollup.status]}
         </Badge>
       </div>
+      <p className="text-sm text-muted-foreground">{PAGE_BLURBS.timeline}</p>
       <StoryTimeline rollup={rollup} events={events} />
     </div>
   );

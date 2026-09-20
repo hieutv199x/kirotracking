@@ -108,7 +108,7 @@ export function AppShell({
         <header className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
           <div className="mr-auto">
             <div className="text-sm font-medium">{ORG_NAME}</div>
-            <div className="text-xs text-muted-foreground">Dashboard visualization</div>
+            <div className="text-xs text-muted-foreground">Chỉ xem số liệu loop</div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex rounded-lg border p-0.5">

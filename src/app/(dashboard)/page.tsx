@@ -3,6 +3,7 @@ import { ensureReady } from "@/lib/db";
 import { getOverview, getStories, parsePeriod } from "@/lib/queries";
 import { getViewer } from "@/lib/viewer";
 import { OverviewPanel, standingByStage } from "@/components/dashboard/overview-panel";
+import { PAGE_BLURBS } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,10 @@ export default async function OverviewPage({
   const standing = standingByStage(stories);
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-lg font-medium">Tổng quan loop</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="font-heading text-lg font-medium">Tổng quan loop</h1>
+        <p className="text-sm text-muted-foreground">{PAGE_BLURBS.overview}</p>
+      </div>
       <OverviewPanel data={data} standing={standing} showFunnel />
     </div>
   );

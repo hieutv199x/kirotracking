@@ -6,6 +6,7 @@ import { FunnelBoard } from "@/components/dashboard/funnel-board";
 import { FunnelEmpty, OrgEmpty, PeriodEmpty } from "@/components/dashboard/empty-states";
 import { StaleBanner } from "@/components/dashboard/stale-banner";
 import { standingByStage } from "@/components/dashboard/overview-panel";
+import { PAGE_BLURBS } from "@/lib/copy";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,10 @@ export default async function FunnelPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-heading text-lg font-medium">Phễu 8 bước</h1>
+      <div className="flex flex-col gap-1">
+        <h1 className="font-heading text-lg font-medium">Phễu 8 bước</h1>
+        <p className="text-sm text-muted-foreground">{PAGE_BLURBS.funnel}</p>
+      </div>
       <StaleBanner stale={data.stale} />
       {data.org_empty ? (
         <OrgEmpty />

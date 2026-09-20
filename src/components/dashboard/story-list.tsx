@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { STAGE_LABELS, type Period } from "@/lib/catalog";
-import { formatDuration, formatNumber } from "@/lib/format";
+import { STATUS_LABELS, reworkPhrase } from "@/lib/copy";
+import { formatD08Split, formatDuration, formatNumber } from "@/lib/format";
 import type { StoryListItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,13 +13,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LockIcon, MessageSquareIcon } from "lucide-react";
 
-const STATUS: Record<StoryListItem["status"], string> = {
-  open: "đang mở",
-  committed: "committed",
-  cancelled: "cancelled",
-};
+function d08Cell(s: StoryListItem) {
+  if (s.d08_total === 0) return "Chưa có lần AI dừng để chốt với người";
+  return `${formatNumber(s.d08_total)} lần — ${formatD08Split(s.d08_spec_lock, s.d08_review)}`;
+}
 
 export function StoryList({
   stories,
@@ -33,12 +32,12 @@ export function StoryList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>story_id</TableHead>
+              <TableHead>Story</TableHead>
               <TableHead>Người</TableHead>
-              <TableHead>Stage</TableHead>
-              <TableHead>Tuổi</TableHead>
-              <TableHead>D-08</TableHead>
-              <TableHead>Rework</TableHead>
+              <TableHead>Bước hiện tại</TableHead>
+              <TableHead>Đã ở trong vòng (từ lúc vào)</TableHead>
+              <TableHead>AI dừng để chốt</TableHead>
+              <TableHead>Phải làm lại</TableHead>
               <TableHead>Trạng thái</TableHead>
             </TableRow>
           </TableHeader>
@@ -51,20 +50,14 @@ export function StoryList({
                   </Link>
                 </TableCell>
                 <TableCell>{s.developer_name}</TableCell>
-                <TableCell>{s.current_stage ? STAGE_LABELS[s.current_stage] : "—"}</TableCell>
-                <TableCell>{formatDuration(s.age_ms)}</TableCell>
+                <TableCell>{s.current_stage ? STAGE_LABELS[s.current_stage] : "Chưa có bước"}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center gap-1">
-                    {formatNumber(s.d08_total)}
-                    {s.d08_spec_lock > 0 ? <LockIcon /> : null}
-                    {s.d08_review > 0 ? <MessageSquareIcon /> : null}
-                  </span>
+                  {formatDuration(s.age_ms, { empty: "không rõ", zero: "vừa vào" })}
                 </TableCell>
+                <TableCell>{d08Cell(s)}</TableCell>
+                <TableCell>{reworkPhrase(s.rework_branches)}</TableCell>
                 <TableCell>
-                  {s.rework ? s.rework_branches.join(" · ") : "không"}
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{STATUS[s.status]}</Badge>
+                  <Badge variant="outline">{STATUS_LABELS[s.status]}</Badge>
                 </TableCell>
               </TableRow>
             ))}
@@ -81,12 +74,15 @@ export function StoryList({
               <CardContent className="flex flex-col gap-1 text-xs text-muted-foreground">
                 <div>{s.developer_name}</div>
                 <div>
-                  {s.current_stage ? STAGE_LABELS[s.current_stage] : "—"} · {STATUS[s.status]}
+                  {s.current_stage ? STAGE_LABELS[s.current_stage] : "Chưa có bước"} ·{" "}
+                  {STATUS_LABELS[s.status]}
                 </div>
                 <div>
-                  Tuổi {formatDuration(s.age_ms)} · D-08 {formatNumber(s.d08_total)}
+                  Đã ở trong vòng{" "}
+                  {formatDuration(s.age_ms, { empty: "không rõ", zero: "vừa vào" })}
                 </div>
-                <div>Rework {s.rework ? s.rework_branches.join(" · ") : "không"}</div>
+                <div>AI dừng để chốt: {d08Cell(s)}</div>
+                <div>{reworkPhrase(s.rework_branches)}</div>
               </CardContent>
             </Card>
           </Link>
