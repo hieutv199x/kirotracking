@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "crypto";
 import { ensureReady } from "@/lib/db";
 import { ingestHttpRequest, jsonResponse } from "@/lib/ingest";
 

@@ -1,12 +1,26 @@
-import { createHash } from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
-import Database from "better-sqlite3";
+import { createHash } from "crypto";
+import fs from "fs";
+import path from "path";
+import { DatabaseSync } from "node:sqlite";
 import { ORG_ID } from "./catalog";
 
 const DEFAULT_DB = path.join(process.cwd(), "data", "kirotrack.sqlite");
 
-let db: Database.Database | null = null;
+type SqlParams = unknown[] | [Record<string, unknown>];
+
+export type Statement = {
+  run: (...args: SqlParams) => { changes: number };
+  get: (...args: SqlParams) => unknown;
+  all: (...args: SqlParams) => unknown[];
+};
+
+export type AppDb = {
+  exec: (sql: string) => void;
+  prepare: (sql: string) => Statement;
+  transaction: (fn: () => void) => () => void;
+};
+
+let db: AppDb | null = null;
 let ready = false;
 let readyPromise: Promise<void> | null = null;
 
@@ -16,19 +30,73 @@ export function getDbPath() {
     : DEFAULT_DB;
 }
 
-export function getDb(): Database.Database {
+function bindArgs(args: SqlParams): unknown[] {
+  if (
+    args.length === 1 &&
+    args[0] != null &&
+    typeof args[0] === "object" &&
+    !Array.isArray(args[0])
+  ) {
+    const named: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(args[0] as Record<string, unknown>)) {
+      named[k.startsWith("$") || k.startsWith("@") || k.startsWith(":") ? k : `@${k}`] = v;
+    }
+    return [named];
+  }
+  return args;
+}
+
+function wrap(raw: DatabaseSync): AppDb {
+  return {
+    exec(sql: string) {
+      raw.exec(sql);
+    },
+    prepare(sql: string): Statement {
+      const stmt = raw.prepare(sql);
+      return {
+        run(...args: SqlParams) {
+          const result = stmt.run(...(bindArgs(args) as never[])) as {
+            changes?: number | bigint;
+          };
+          return { changes: Number(result.changes ?? 0) };
+        },
+        get(...args: SqlParams) {
+          return stmt.get(...(bindArgs(args) as never[]));
+        },
+        all(...args: SqlParams) {
+          return stmt.all(...(bindArgs(args) as never[])) as unknown[];
+        },
+      };
+    },
+    transaction(fn: () => void) {
+      return () => {
+        raw.exec("BEGIN");
+        try {
+          fn();
+          raw.exec("COMMIT");
+        } catch (err) {
+          raw.exec("ROLLBACK");
+          throw err;
+        }
+      };
+    },
+  };
+}
+
+export function getDb(): AppDb {
   if (!db) {
     const file = getDbPath();
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    db = new Database(file);
-    db.pragma("journal_mode = WAL");
-    db.pragma("busy_timeout = 3000");
-    db.pragma("foreign_keys = ON");
+    const raw = new DatabaseSync(file);
+    raw.exec("PRAGMA journal_mode = WAL");
+    raw.exec("PRAGMA busy_timeout = 3000");
+    raw.exec("PRAGMA foreign_keys = ON");
+    db = wrap(raw);
   }
   return db;
 }
 
-function migrate(database: Database.Database) {
+function migrate(database: AppDb) {
   database.exec(`
     CREATE TABLE IF NOT EXISTS ingest_tokens (
       token_hash TEXT PRIMARY KEY,
@@ -148,7 +216,7 @@ const DEFAULT_TOKENS: { token: string; org_id: string; developer_id: string; lab
     { token: "kt_dev_khang", org_id: ORG_ID, developer_id: "khang", label: "Khang Lê" },
   ];
 
-function seedTokens(database: Database.Database) {
+function seedTokens(database: AppDb) {
   const insert = database.prepare(
     `INSERT OR IGNORE INTO ingest_tokens (token_hash, org_id, developer_id, label, created_at)
      VALUES (?, ?, ?, ?, ?)`,
