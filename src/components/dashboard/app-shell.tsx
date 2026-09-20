@@ -56,17 +56,12 @@ export function AppShell({
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  function setViewer(next: string) {
+  function viewerHref(next: string) {
     const params = new URLSearchParams(searchParams.toString());
     if (next === "lead") params.delete("viewer");
     else params.set("viewer", next);
-    document.cookie = `kt_viewer=${encodeURIComponent(next)}; Path=/; SameSite=Lax`;
-    void fetch("/api/viewer", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ viewer: next }),
-    });
-    router.push(`${pathname}?${params.toString()}`);
+    const q = params.toString();
+    return q ? `${pathname}?${q}` : pathname;
   }
 
   return (
@@ -133,19 +128,33 @@ export function AppShell({
                 </button>
               ))}
             </div>
-            <select
-              aria-label="Người xem"
-              value={currentViewer}
-              onChange={(e) => void setViewer(e.target.value)}
-              className="h-8 min-w-40 rounded-lg border border-input bg-transparent px-2 text-sm"
-            >
-              <option value="lead">Lead · {ORG_NAME}</option>
+            <div className="flex flex-wrap rounded-lg border p-0.5">
+              <Link
+                href={viewerHref("lead")}
+                className={cn(
+                  buttonVariants({
+                    variant: currentViewer === "lead" ? "secondary" : "ghost",
+                    size: "sm",
+                  }),
+                )}
+              >
+                Lead
+              </Link>
               {DEVELOPERS.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
+                <Link
+                  key={d.id}
+                  href={viewerHref(d.id)}
+                  className={cn(
+                    buttonVariants({
+                      variant: currentViewer === d.id ? "secondary" : "ghost",
+                      size: "sm",
+                    }),
+                  )}
+                >
+                  {d.name.split(" ")[0]}
+                </Link>
               ))}
-            </select>
+            </div>
           </div>
         </header>
         <main className="flex-1 px-4 py-4 md:px-6">{children}</main>
