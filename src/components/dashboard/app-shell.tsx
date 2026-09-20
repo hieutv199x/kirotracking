@@ -73,7 +73,7 @@ export function AppShell({
         Skip to content
       </a>
 
-      <aside className="hidden w-56 shrink-0 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm md:flex md:flex-col">
+      <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm md:flex md:flex-col">
         <div className="flex items-center gap-2.5 px-4 py-5">
           <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <GitCommitHorizontalIcon className="size-4" />
