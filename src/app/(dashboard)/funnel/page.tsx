@@ -12,16 +12,16 @@ export const dynamic = "force-dynamic";
 export default async function FunnelPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string; stand?: string }>;
+  searchParams: Promise<{ period?: string; stand?: string; viewer?: string }>;
 }) {
   await ensureReady();
-  const { period: periodParam, stand } = await searchParams;
+  const { period: periodParam, stand, viewer: viewerParam } = await searchParams;
   const period = parsePeriod(periodParam);
   const selected =
     stand && (LOOP_STAGES as readonly string[]).includes(stand)
       ? (stand as LoopStage)
       : null;
-  const viewer = await getViewer();
+  const viewer = await getViewer(viewerParam);
   const scope = viewer.role === "developer" ? viewer.id : undefined;
   const data = getOverview(ORG_ID, period, scope);
   const stories = getStories(ORG_ID, period, { developerId: scope });
@@ -44,6 +44,7 @@ export default async function FunnelPage({
           standing={standing}
           period={period}
           selected={selected}
+          viewerId={viewer.id}
         />
       )}
     </div>

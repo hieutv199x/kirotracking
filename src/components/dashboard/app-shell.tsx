@@ -27,9 +27,11 @@ const MOBILE_NAV = [
   { href: "/me", label: "Tôi", icon: UserIcon },
 ];
 
-function withPeriod(href: string, period: string) {
+function withParams(href: string, period: string, viewer: string) {
   const url = new URL(href, "http://local");
   url.searchParams.set("period", period);
+  if (viewer && viewer !== "lead") url.searchParams.set("viewer", viewer);
+  else url.searchParams.delete("viewer");
   return `${url.pathname}?${url.searchParams.toString()}`;
 }
 
@@ -46,6 +48,7 @@ export function AppShell({
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentPeriod = (searchParams.get("period") as Period) || period;
+  const currentViewer = searchParams.get("viewer") || viewerId;
 
   function setPeriod(next: Period) {
     const params = new URLSearchParams(searchParams.toString());
@@ -54,13 +57,16 @@ export function AppShell({
   }
 
   function setViewer(next: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "lead") params.delete("viewer");
+    else params.set("viewer", next);
     document.cookie = `kt_viewer=${encodeURIComponent(next)}; Path=/; SameSite=Lax`;
     void fetch("/api/viewer", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ viewer: next }),
     });
-    router.refresh();
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   return (
@@ -79,7 +85,7 @@ export function AppShell({
             return (
               <Link
                 key={item.href}
-                href={withPeriod(item.href, currentPeriod)}
+                href={withParams(item.href, currentPeriod, currentViewer)}
                 className={cn(
                   buttonVariants({ variant: active ? "secondary" : "ghost" }),
                   "justify-start",
@@ -91,7 +97,7 @@ export function AppShell({
             );
           })}
           <Link
-            href={withPeriod("/me", currentPeriod)}
+            href={withParams("/me", currentPeriod, currentViewer)}
             className={cn(
               buttonVariants({ variant: pathname === "/me" ? "secondary" : "ghost" }),
               "justify-start",
@@ -129,7 +135,7 @@ export function AppShell({
             </div>
             <select
               aria-label="Người xem"
-              value={viewerId}
+              value={currentViewer}
               onChange={(e) => void setViewer(e.target.value)}
               className="h-8 min-w-40 rounded-lg border border-input bg-transparent px-2 text-sm"
             >
@@ -151,7 +157,7 @@ export function AppShell({
           return (
             <Link
               key={item.href}
-              href={withPeriod(item.href, currentPeriod)}
+              href={withParams(item.href, currentPeriod, currentViewer)}
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 py-2 text-xs",
                 active ? "text-foreground" : "text-muted-foreground",

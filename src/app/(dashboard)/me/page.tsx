@@ -11,12 +11,12 @@ export const dynamic = "force-dynamic";
 export default async function MePage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; viewer?: string }>;
 }) {
   await ensureReady();
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, viewer: viewerParam } = await searchParams;
   const period = parsePeriod(periodParam);
-  const viewer = await getViewer();
+  const viewer = await getViewer(viewerParam);
   if (viewer.role !== "developer") {
     return (
       <div className="flex flex-col gap-4">

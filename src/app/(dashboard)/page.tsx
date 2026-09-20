@@ -9,12 +9,12 @@ export const dynamic = "force-dynamic";
 export default async function OverviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; viewer?: string }>;
 }) {
   await ensureReady();
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, viewer: viewerParam } = await searchParams;
   const period = parsePeriod(periodParam);
-  const viewer = await getViewer();
+  const viewer = await getViewer(viewerParam);
   const scope = viewer.role === "developer" ? viewer.id : undefined;
   const data = getOverview(ORG_ID, period, scope);
   const stories = getStories(ORG_ID, period, { developerId: scope });

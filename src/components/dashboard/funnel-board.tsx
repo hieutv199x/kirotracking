@@ -11,11 +11,13 @@ export function FunnelBoard({
   standing,
   period,
   selected,
+  viewerId,
 }: {
   funnel: FunnelStep[];
   standing: Record<LoopStage, StoryListItem[]>;
   period: Period;
   selected?: LoopStage | null;
+  viewerId?: string;
 }) {
   const list = selected ? standing[selected] ?? [] : [];
 
@@ -29,7 +31,7 @@ export function FunnelBoard({
           return (
             <Link
               key={stage}
-              href={`?period=${period}&stand=${isSelected ? "" : stage}`}
+              href={`?period=${period}&stand=${isSelected ? "" : stage}${viewerId && viewerId !== "lead" ? `&viewer=${viewerId}` : ""}`}
               aria-pressed={isSelected}
               className="text-left"
             >

@@ -17,12 +17,13 @@ export default async function StoriesPage({
     person?: string;
     rework?: string;
     d08lock?: string;
+    viewer?: string;
   }>;
 }) {
   await ensureReady();
   const params = await searchParams;
   const period = parsePeriod(params.period);
-  const viewer = await getViewer();
+  const viewer = await getViewer(params.viewer);
   const scope = viewer.role === "developer" ? viewer.id : params.person;
   const stories = getStories(ORG_ID, period, {
     developerId: scope,

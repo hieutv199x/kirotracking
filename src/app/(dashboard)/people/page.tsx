@@ -10,12 +10,12 @@ export const dynamic = "force-dynamic";
 export default async function PeoplePage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; viewer?: string }>;
 }) {
   await ensureReady();
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, viewer: viewerParam } = await searchParams;
   const period = parsePeriod(periodParam);
-  const viewer = await getViewer();
+  const viewer = await getViewer(viewerParam);
   const scope = viewer.role === "developer" ? viewer.id : undefined;
   const rows = getPeople(ORG_ID, period, scope);
   return (

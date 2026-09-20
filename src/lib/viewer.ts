@@ -3,11 +3,24 @@ import { DEVELOPERS } from "./catalog";
 
 export const VIEWER_COOKIE = "kt_viewer";
 
-export async function getViewer() {
-  const store = await cookies();
-  const value = store.get(VIEWER_COOKIE)?.value ?? "lead";
-  if (value === "lead") return { id: "lead" as const, name: "Lead kỹ thuật", role: "lead" as const };
+export type Viewer = {
+  id: string;
+  name: string;
+  role: "lead" | "developer";
+};
+
+function resolve(value: string | undefined | null): Viewer {
+  if (!value || value === "lead") {
+    return { id: "lead", name: "Lead kỹ thuật", role: "lead" };
+  }
   const dev = DEVELOPERS.find((d) => d.id === value);
-  if (!dev) return { id: "lead" as const, name: "Lead kỹ thuật", role: "lead" as const };
-  return { id: dev.id, name: dev.name, role: "developer" as const };
+  if (!dev) return { id: "lead", name: "Lead kỹ thuật", role: "lead" };
+  return { id: dev.id, name: dev.name, role: "developer" };
+}
+
+export async function getViewer(queryViewer?: string | string[] | undefined) {
+  const fromQuery = Array.isArray(queryViewer) ? queryViewer[0] : queryViewer;
+  if (fromQuery) return resolve(fromQuery);
+  const store = await cookies();
+  return resolve(store.get(VIEWER_COOKIE)?.value);
 }

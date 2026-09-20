@@ -15,13 +15,13 @@ export default async function StoryDetailPage({
   searchParams,
 }: {
   params: Promise<{ storyId: string }>;
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; viewer?: string }>;
 }) {
   await ensureReady();
   const { storyId } = await params;
-  const { period: periodParam } = await searchParams;
+  const { period: periodParam, viewer: viewerParam } = await searchParams;
   const period = parsePeriod(periodParam);
-  const viewer = await getViewer();
+  const viewer = await getViewer(viewerParam);
   const detail = getStoryDetail(ORG_ID, storyId);
   if (!detail) notFound();
   if (viewer.role === "developer" && detail.rollup.developer_id !== viewer.id) {
