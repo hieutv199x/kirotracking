@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts";
 import {
   LOOP_STAGES,
   STAGE_LABELS,
@@ -14,19 +13,8 @@ import { STAGE_HINTS } from "@/lib/copy";
 import { durationParts, formatNumber, pctInt } from "@/lib/format";
 import type { FunnelStep, StoryListItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { SectionHead } from "./hint";
-
-const chartConfig = {
-  entered: { label: "Stories reached", color: "var(--primary)" },
-  standing: { label: "Standing", color: "var(--cta)" },
-} satisfies ChartConfig;
 
 export function FunnelBoard({
   funnel,
@@ -46,11 +34,13 @@ export function FunnelBoard({
   const router = useRouter();
   const list = selected ? standing[selected] ?? [] : [];
   const viewerQ = viewerId && viewerId !== "lead" ? `&viewer=${viewerId}` : "";
+  const max = Math.max(1, ...funnel.map((s) => s.entered));
 
   const data = LOOP_STAGES.map((stage, i) => {
     const step = funnel.find((f) => f.stage === stage);
     const entered = step?.entered ?? 0;
-    const prev = i > 0 ? (funnel.find((f) => f.stage === LOOP_STAGES[i - 1])?.entered ?? 0) : entered;
+    const prev =
+      i > 0 ? (funnel.find((f) => f.stage === LOOP_STAGES[i - 1])?.entered ?? 0) : entered;
     const drop = i > 0 && prev > 0 ? Math.round(((prev - entered) / prev) * 100) : 0;
     return {
       stage,
@@ -61,6 +51,7 @@ export function FunnelBoard({
       median_ms: step?.median_ms ?? null,
       conversion: step?.conversion ?? null,
       drop,
+      heightPct: Math.max(entered > 0 ? 8 : 0, (entered / max) * 100),
       selected: selected === stage,
     };
   });
@@ -89,104 +80,71 @@ export function FunnelBoard({
         />
       )}
 
-      <div className={cn(compact && "panel panel-pad")}>
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-56 w-full md:h-64"
-          initialDimension={{ width: 640, height: 256 }}
+      <div className={cn("flex flex-col gap-2", compact && "panel panel-pad")}>
+        <div
+          className="grid h-56 grid-cols-8 items-end gap-1.5 md:h-64 md:gap-2"
+          role="img"
+          aria-label="Funnel column chart by stage"
         >
-          <BarChart
-            data={data}
-            margin={{ top: 24, right: 8, left: 0, bottom: 4 }}
-            barCategoryGap="18%"
-          >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              interval={0}
-              tick={{ fontSize: 11 }}
-            />
-            <YAxis
-              allowDecimals={false}
-              width={28}
-              tickLine={false}
-              axisLine={false}
-              tick={{ fontSize: 11 }}
-            />
-            <ChartTooltip
-              cursor={{ fill: "var(--secondary)" }}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(_, payload) => {
-                    const row = payload?.[0]?.payload as (typeof data)[number] | undefined;
-                    return row?.full ?? "";
-                  }}
-                  formatter={(value, name, item) => {
-                    const row = item?.payload as (typeof data)[number] | undefined;
-                    if (name === "entered") {
-                      const dur = durationParts(row?.median_ms ?? null);
-                      const conv = pctInt(row?.conversion ?? null);
-                      const extra = [
-                        dur ? `median ${dur.value} ${dur.unit}` : null,
-                        conv != null ? `${conv}% continue` : null,
-                        row && row.drop > 0 ? `${row.drop}% drop from prior` : null,
-                        row && row.standing > 0 ? `${row.standing} standing` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ");
-                      return (
-                        <div className="flex w-full flex-col gap-0.5">
-                          <div className="flex justify-between gap-4">
-                            <span className="text-muted-foreground">Reached</span>
-                            <span className="font-heading font-medium tabular-nums">
-                              {formatNumber(Number(value))}
-                            </span>
-                          </div>
-                          {extra ? (
-                            <span className="text-[11px] text-muted-foreground">{extra}</span>
-                          ) : null}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              }
-            />
-            <Bar
-              dataKey="entered"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={48}
-              cursor="pointer"
-              onClick={(d) => {
-                const stage = (d as { stage?: LoopStage }).stage;
-                if (stage) selectStage(stage);
-              }}
-            >
-              {data.map((row) => (
-                <Cell
-                  key={row.stage}
-                  fill={row.selected ? "var(--cta)" : "var(--primary)"}
-                  fillOpacity={row.drop >= 25 && !row.selected ? 0.75 : 1}
-                  stroke={row.standing > 0 ? "var(--cta)" : undefined}
-                  strokeWidth={row.standing > 0 ? 2 : 0}
-                />
-              ))}
-              <LabelList
-                dataKey="entered"
-                position="top"
-                className="fill-foreground font-heading"
-                fontSize={11}
-                formatter={(v) => (Number(v) === 0 ? "" : formatNumber(Number(v)))}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-        <p className="mt-1 text-[11px] text-muted-foreground" title={STAGE_HINTS.intake}>
-          Click a column to inspect standing stories. Amber outline = someone is waiting at that step.
+          {data.map((row) => {
+            const dur = durationParts(row.median_ms);
+            const conv = pctInt(row.conversion);
+            const title = [
+              row.full,
+              `${formatNumber(row.entered)} reached`,
+              dur ? `median ${dur.value} ${dur.unit}` : null,
+              conv != null ? `${conv}% continue` : null,
+              row.drop > 0 ? `${row.drop}% drop from prior` : null,
+              row.standing > 0 ? `${row.standing} standing` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ");
+            return (
+              <button
+                key={row.stage}
+                type="button"
+                title={title}
+                aria-label={`${row.full}: ${row.entered} stories`}
+                aria-pressed={row.selected}
+                onClick={() => selectStage(row.stage)}
+                className={cn(
+                  "group flex h-full cursor-pointer flex-col items-center justify-end gap-1 rounded-md px-0.5 transition-colors duration-200",
+                  row.selected && "bg-secondary",
+                  row.drop >= 25 && !row.selected && "bg-accent/30",
+                )}
+              >
+                <span className="font-heading text-[11px] font-semibold tabular-nums text-foreground md:text-xs">
+                  {row.entered === 0 ? "—" : formatNumber(row.entered)}
+                </span>
+                <div className="relative flex w-full flex-1 items-end justify-center">
+                  <div
+                    className={cn(
+                      "meter-fill-y relative w-full max-w-[2.75rem] rounded-t-md transition-colors duration-200",
+                      row.selected ? "bg-cta" : "bg-primary",
+                      "group-hover:brightness-110",
+                    )}
+                    style={{ height: `${row.heightPct}%` }}
+                  >
+                    {row.standing > 0 ? (
+                      <span
+                        className="absolute -top-1 left-1/2 size-2 -translate-x-1/2 rounded-full bg-cta ring-2 ring-card"
+                        title={`${row.standing} standing`}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                <span
+                  className="w-full truncate text-center text-[10px] font-medium text-muted-foreground md:text-[11px]"
+                  title={STAGE_HINTS[row.stage]}
+                >
+                  {row.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Click a column to inspect standing stories. Amber tip = someone is waiting at that step.
         </p>
       </div>
 
@@ -209,7 +167,9 @@ export function FunnelBoard({
           )}
         </div>
       ) : (
-        <p className="text-[11px] text-muted-foreground">Click a step to see who is standing there.</p>
+        <p className="text-[11px] text-muted-foreground">
+          Click a step to see who is standing there.
+        </p>
       )}
     </div>
   );
