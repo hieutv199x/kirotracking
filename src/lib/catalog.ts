@@ -61,11 +61,23 @@ export const REFINE_STAGES = [
 export type RefineStage = (typeof REFINE_STAGES)[number];
 
 export const STAGE_LABELS: Record<LoopStage, string> = {
-  intake: "Nhập story",
+  intake: "Intake",
   spec_gen: "Gen spec",
-  spec_lock: "Khóa spec",
-  testcase: "Gen testcase",
+  spec_lock: "Lock spec",
+  testcase: "Gen tests",
   implement: "Implement",
+  test: "Test",
+  review: "Review",
+  commit: "Commit",
+};
+
+/** Short labels for dense column charts */
+export const STAGE_SHORT: Record<LoopStage, string> = {
+  intake: "Intake",
+  spec_gen: "Spec",
+  spec_lock: "Lock",
+  testcase: "Tests",
+  implement: "Impl",
   test: "Test",
   review: "Review",
   commit: "Commit",
@@ -75,16 +87,16 @@ export const PERIODS = ["today", "7d", "30d"] as const;
 export type Period = (typeof PERIODS)[number];
 
 export const PERIOD_LABELS: Record<Period, string> = {
-  today: "Hôm nay",
-  "7d": "7 ngày",
-  "30d": "30 ngày",
+  today: "Today",
+  "7d": "7 days",
+  "30d": "30 days",
 };
 
 export const DEVELOPERS = [
-  { id: "lan", name: "Lan Nguyễn" },
-  { id: "minh", name: "Minh Trần" },
-  { id: "hoa", name: "Hoa Phạm" },
-  { id: "khang", name: "Khang Lê" },
+  { id: "lan", name: "Lan Nguyen" },
+  { id: "minh", name: "Minh Tran" },
+  { id: "hoa", name: "Hoa Pham" },
+  { id: "khang", name: "Khang Le" },
 ] as const;
 
 export const DEVELOPER_NAMES: Record<string, string> = Object.fromEntries(

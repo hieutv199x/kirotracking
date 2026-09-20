@@ -35,7 +35,10 @@ export default async function StoriesPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <PageTitle title="Story" subtitle="Danh sách story trong kỳ — lọc theo bước, người, làm lại." />
+      <PageTitle
+        title="Stories"
+        subtitle="Stories in this period — filter by step, person, or rework."
+      />
       <StoryFilters showPerson={viewer.role === "lead"} />
       {!orgHasAnyStory(ORG_ID) ? (
         <OrgEmpty />

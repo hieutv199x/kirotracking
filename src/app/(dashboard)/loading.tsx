@@ -5,7 +5,7 @@ export default function Loading() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
-        Đang tải số loop {PERIOD_LABELS["7d"].toLowerCase()}…
+        Loading loop metrics for {PERIOD_LABELS["7d"].toLowerCase()}…
       </p>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Skeleton className="h-24" />

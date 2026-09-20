@@ -6,7 +6,7 @@ export function StaleBanner({ stale }: { stale: boolean }) {
   return (
     <Alert>
       <ClockIcon />
-      <AlertTitle>Số liệu có thể chậm vài phút.</AlertTitle>
+      <AlertTitle>Numbers may lag by a few minutes.</AlertTitle>
     </Alert>
   );
 }

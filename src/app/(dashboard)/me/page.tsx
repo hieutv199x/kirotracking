@@ -21,7 +21,10 @@ export default async function MePage({
   if (viewer.role !== "developer") {
     return (
       <div className="flex flex-col gap-4">
-        <PageTitle title="Tôi" subtitle="Chọn một developer ở thanh trên để xem phạm vi cá nhân." />
+        <PageTitle
+          title="Me"
+          subtitle="Pick a developer in the top bar to see a personal scope."
+        />
         <MeEmpty />
       </div>
     );
@@ -31,14 +34,14 @@ export default async function MePage({
   const standing = standingByStage(stories);
   return (
     <div className="flex flex-col gap-5">
-      <PageTitle title={`Tôi · ${viewer.name}`} subtitle="Loop của bạn trong kỳ đang chọn." />
+      <PageTitle title={`Me · ${viewer.name}`} subtitle="Your loop in the selected period." />
       {stories.length === 0 ? (
         <MeEmpty />
       ) : (
         <>
           <OverviewPanel data={data} standing={standing} />
           <section className="flex flex-col gap-3">
-            <h2 className="font-heading text-sm font-semibold">Story của tôi</h2>
+            <h2 className="font-heading text-sm font-semibold">My stories</h2>
             <StoryList stories={stories} period={period} />
           </section>
         </>

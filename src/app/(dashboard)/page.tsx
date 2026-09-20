@@ -23,8 +23,8 @@ export default async function OverviewPage({
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title="Tổng quan"
-        subtitle="Sức khỏe loop 8 bước — commit, cycle time, nút thắt, cổng đầu."
+        title="Overview"
+        subtitle="8-step loop health — commits, cycle time, bottlenecks, first-pass gates."
       />
       <OverviewPanel data={data} standing={standing} showFunnel />
     </div>

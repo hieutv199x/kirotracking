@@ -32,8 +32,8 @@ export default async function FunnelPage({
   return (
     <div className="flex flex-col gap-5">
       <PageTitle
-        title="Phễu 8 bước"
-        subtitle="Theo dõi rơi bước và story đang đứng trong vòng."
+        title="8-step funnel"
+        subtitle="Drop-off across steps and stories currently standing in the loop."
       />
       <StaleBanner stale={data.stale} />
       {data.org_empty ? (

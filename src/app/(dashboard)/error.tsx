@@ -12,8 +12,8 @@ export default function ErrorView({
   return (
     <div className="flex flex-col gap-3">
       <ReadError />
-      <Button onClick={reset} className="w-fit">
-        Thử lại
+      <Button onClick={reset} className="w-fit cursor-pointer">
+        Try again
       </Button>
     </div>
   );

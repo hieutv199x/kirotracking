@@ -15,16 +15,16 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const DESKTOP_NAV = [
-  { href: "/", label: "Tổng quan", icon: LayoutDashboardIcon },
-  { href: "/funnel", label: "Phễu 8 bước", icon: FilterIcon },
-  { href: "/stories", label: "Story", icon: ListIcon },
-  { href: "/people", label: "Theo người", icon: UsersIcon },
+  { href: "/", label: "Overview", icon: LayoutDashboardIcon },
+  { href: "/funnel", label: "8-step funnel", icon: FilterIcon },
+  { href: "/stories", label: "Stories", icon: ListIcon },
+  { href: "/people", label: "By person", icon: UsersIcon },
 ];
 
 const MOBILE_NAV = [
-  { href: "/", label: "Tổng quan", icon: LayoutDashboardIcon },
-  { href: "/stories", label: "Story", icon: ListIcon },
-  { href: "/me", label: "Tôi", icon: UserIcon },
+  { href: "/", label: "Overview", icon: LayoutDashboardIcon },
+  { href: "/stories", label: "Stories", icon: ListIcon },
+  { href: "/me", label: "Me", icon: UserIcon },
 ];
 
 function withParams(href: string, period: string, viewer: string) {
@@ -70,7 +70,7 @@ export function AppShell({
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
       >
-        Bỏ qua điều hướng
+        Skip to content
       </a>
 
       <aside className="hidden w-56 shrink-0 border-r border-sidebar-border bg-sidebar/95 backdrop-blur-sm md:flex md:flex-col">
@@ -82,10 +82,10 @@ export function AppShell({
             <div className="font-heading text-sm font-semibold tracking-tight text-primary">
               KiroTracking
             </div>
-            <div className="text-[11px] text-muted-foreground">Loop 8 bước → commit</div>
+            <div className="text-[11px] text-muted-foreground">8-step loop → commit</div>
           </div>
         </div>
-        <nav className="flex flex-1 flex-col gap-0.5 px-2 pb-4" aria-label="Chính">
+        <nav className="flex flex-1 flex-col gap-0.5 px-2 pb-4" aria-label="Primary">
           {DESKTOP_NAV.map((item) => {
             const active = pathname === item.href;
             return (
@@ -112,7 +112,7 @@ export function AppShell({
             )}
           >
             <UserIcon data-icon="inline-start" />
-            Tôi
+            Me
           </Link>
         </nav>
       </aside>
@@ -124,7 +124,7 @@ export function AppShell({
             <div className="text-[11px] text-muted-foreground md:hidden">KiroTracking</div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-md border border-border bg-card p-0.5" role="group" aria-label="Kỳ">
+            <div className="flex rounded-md border border-border bg-card p-0.5" role="group" aria-label="Period">
               {PERIODS.map((p) => (
                 <button
                   key={p}
@@ -143,7 +143,7 @@ export function AppShell({
                 </button>
               ))}
             </div>
-            <div className="flex flex-wrap rounded-md border border-border bg-card p-0.5" role="group" aria-label="Người xem">
+            <div className="flex flex-wrap rounded-md border border-border bg-card p-0.5" role="group" aria-label="Viewer">
               <Link
                 href={viewerHref("lead")}
                 className={cn(

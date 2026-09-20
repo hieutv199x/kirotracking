@@ -8,10 +8,10 @@ import { DualBar, LegendDot, StackedBar } from "./bars";
 import { SectionHead } from "./hint";
 
 const RESULT: Record<string, string> = {
-  pass: "đạt",
+  pass: "pass",
   fail: "fail",
-  returned: "trả",
-  pending: "chờ",
+  returned: "returned",
+  pending: "waiting",
 };
 
 export function StoryTimeline({
@@ -36,13 +36,13 @@ export function StoryTimeline({
             {cycle?.value ?? "—"}
           </span>
           <span className="text-sm text-muted-foreground">
-            {cycle ? cycle.unit : "chưa commit"}
+            {cycle ? cycle.unit : "not committed"}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <LegendDot tone="work" label="Làm" />
-          <LegendDot tone="wait" label="Chờ" />
-          <LegendDot tone="lock" label="Khóa spec" />
+          <LegendDot tone="work" label="Work" />
+          <LegendDot tone="wait" label="Wait" />
+          <LegendDot tone="lock" label="Spec lock" />
           <LegendDot tone="review" label="Review" />
         </div>
       </div>
@@ -72,20 +72,20 @@ export function StoryTimeline({
               <div className="flex flex-col gap-2 pb-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-medium">{STAGE_LABELS[step.stage]}</span>
-                  {step.waiting ? <Badge variant="outline">chờ</Badge> : null}
+                  {step.waiting ? <Badge variant="outline">waiting</Badge> : null}
                   {step.result ? <Badge variant="secondary">{RESULT[step.result]}</Badge> : null}
                   {step.rounds > 0 ? (
                     <span className="font-heading text-xs tabular-nums text-muted-foreground">
-                      {formatNumber(step.rounds)} vòng
+                      {formatNumber(step.rounds)} rounds
                     </span>
                   ) : null}
                 </div>
                 <DualBar work={work} wait={wait} max={max} />
                 <div className="flex flex-wrap gap-3 font-heading text-xs tabular-nums text-muted-foreground">
-                  <span>làm {formatDuration(work, { empty: "—", zero: "—" })}</span>
-                  <span>chờ {formatDuration(wait, { empty: "—", zero: "—" })}</span>
+                  <span>work {formatDuration(work, { empty: "—", zero: "—" })}</span>
+                  <span>wait {formatDuration(wait, { empty: "—", zero: "—" })}</span>
                   {step.stage === "spec_lock" ? (
-                    <span>{formatNumber(rollup.d08_spec_lock)} khóa spec</span>
+                    <span>{formatNumber(rollup.d08_spec_lock)} spec lock</span>
                   ) : null}
                   {step.stage === "review" ? (
                     <span>{formatNumber(rollup.d08_review)} review</span>
@@ -98,13 +98,13 @@ export function StoryTimeline({
       </ol>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Chip label="Khóa spec" ok={rollup.first_lock_pass} />
-        <Chip label="Test xanh" ok={rollup.first_test_pass} />
-        <Chip label="Review đạt" ok={rollup.first_review_pass} />
+        <Chip label="Spec lock" ok={rollup.first_lock_pass} />
+        <Chip label="Tests green" ok={rollup.first_test_pass} />
+        <Chip label="Review pass" ok={rollup.first_review_pass} />
       </div>
 
       <div className="panel panel-pad flex flex-col gap-3">
-        <SectionHead title="AI dừng" hint="Đặc = lúc khóa spec. Mờ = lúc review." />
+        <SectionHead title="AI pauses" hint="Solid = at spec lock. Muted = at review." />
         <StackedBar
           size="lg"
           parts={[
@@ -118,17 +118,17 @@ export function StoryTimeline({
             <span className="font-heading font-medium tabular-nums">
               {formatNumber(rollup.d08_total)}
             </span>{" "}
-            <span className="text-muted-foreground">lần</span>
+            <span className="text-muted-foreground">times</span>
           </span>
           <span className="text-muted-foreground">{reworkPhrase(rollup.rework_branches)}</span>
-          {rollup.takeover ? <Badge variant="destructive">làm hộ</Badge> : null}
+          {rollup.takeover ? <Badge variant="destructive">takeover</Badge> : null}
         </div>
       </div>
 
       <div className="panel panel-pad flex flex-col gap-2">
-        <SectionHead title="Nhật ký" />
+        <SectionHead title="Event log" />
         {events.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Chưa có sự kiện.</p>
+          <p className="text-sm text-muted-foreground">No events yet.</p>
         ) : (
           <ol className="flex flex-col">
             {events.map((ev) => (
@@ -138,9 +138,9 @@ export function StoryTimeline({
               >
                 <span className="font-medium">{EVENT_LABELS[ev.name] ?? ev.name}</span>
                 <span className="shrink-0 font-heading tabular-nums text-muted-foreground">
-                  {new Date(ev.occurred_at).toLocaleString("vi-VN", {
+                  {new Date(ev.occurred_at).toLocaleString("en-US", {
                     day: "2-digit",
-                    month: "2-digit",
+                    month: "short",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
@@ -163,7 +163,7 @@ function Chip({ label, ok }: { label: string; ok: number | null }) {
           "size-2.5 rounded-full",
           ok == null ? "bg-muted" : ok === 1 ? "bg-ok" : "bg-destructive",
         )}
-        title={ok == null ? "chưa tới" : ok === 1 ? "đạt lần đầu" : "không đạt lần đầu"}
+        title={ok == null ? "not reached" : ok === 1 ? "first-pass" : "not first-pass"}
       />
     </div>
   );

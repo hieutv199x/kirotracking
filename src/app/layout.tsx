@@ -18,7 +18,7 @@ const mono = Fira_Code({
 
 export const metadata: Metadata = {
   title: "KiroTracking",
-  description: "Dashboard sức khỏe vòng lặp kỹ thuật Kiro — tám bước đến commit.",
+  description: "Kiro engineering loop health dashboard — eight steps to commit.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="vi"
+      lang="en"
       className={`${sans.variable} ${mono.variable} ${sans.className} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

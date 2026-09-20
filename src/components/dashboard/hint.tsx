@@ -14,7 +14,7 @@ export function Hint({ children }: { children: ReactNode }) {
         className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors duration-200 hover:bg-secondary hover:text-primary"
       >
         <CircleHelpIcon className="size-3.5" />
-        <span className="sr-only">{title ?? "Giải thích"}</span>
+        <span className="sr-only">{title ?? "Explain"}</span>
       </TooltipTrigger>
       <TooltipContent className="max-w-56 text-left leading-snug">{children}</TooltipContent>
     </Tooltip>

@@ -28,11 +28,11 @@ export function StoryList({
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead>Story</TableHead>
-              <TableHead>Người</TableHead>
-              <TableHead>Bước</TableHead>
-              <TableHead>Tuổi</TableHead>
-              <TableHead>AI dừng</TableHead>
-              <TableHead>Làm lại</TableHead>
+              <TableHead>Person</TableHead>
+              <TableHead>Step</TableHead>
+              <TableHead>Age</TableHead>
+              <TableHead>AI pauses</TableHead>
+              <TableHead>Rework</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -60,7 +60,7 @@ export function StoryList({
                   <TableCell>
                     <div className="flex w-32 flex-col gap-1">
                       <span className="font-heading tabular-nums">
-                        {s.d08_total === 0 ? "—" : `${formatNumber(s.d08_total)} lần`}
+                        {s.d08_total === 0 ? "—" : `${formatNumber(s.d08_total)}×`}
                       </span>
                       <StackedBar
                         size="sm"
@@ -103,7 +103,7 @@ export function StoryList({
               </div>
               <div className="flex justify-between font-heading text-xs tabular-nums">
                 <span>{age ? `${age.value} ${age.unit}` : "—"}</span>
-                <span>{s.d08_total === 0 ? "—" : `${formatNumber(s.d08_total)} lần`}</span>
+                <span>{s.d08_total === 0 ? "—" : `${formatNumber(s.d08_total)}×`}</span>
               </div>
               <StackedBar
                 size="sm"

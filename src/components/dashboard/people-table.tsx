@@ -19,28 +19,31 @@ export function PeopleTable({ rows }: { rows: PersonRow[] }) {
   return (
     <div className="reveal flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <SectionHead title="Theo người" hint="Sắp theo số story vào vòng, không phải xếp hạng." />
+        <SectionHead
+          title="By person"
+          hint="Sorted by stories entered — not a ranking."
+        />
         <div className="flex items-center gap-3">
-          <LegendDot tone="lock" label="Khóa spec" />
+          <LegendDot tone="lock" label="Spec lock" />
           <LegendDot tone="review" label="Review" />
         </div>
       </div>
       {small ? (
         <Alert>
           <InfoIcon />
-          <AlertTitle>Mẫu nhỏ — xem xu hướng, chưa xếp hạng.</AlertTitle>
+          <AlertTitle>Small sample — trends only, not a ranking.</AlertTitle>
         </Alert>
       ) : null}
       <div className="panel hidden overflow-hidden md:block">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Người</TableHead>
-              <TableHead>Vào / xong</TableHead>
-              <TableHead>Thời gian</TableHead>
-              <TableHead>Làm hộ</TableHead>
-              <TableHead>AI dừng</TableHead>
-              <TableHead>Khóa → commit</TableHead>
+              <TableHead>Person</TableHead>
+              <TableHead>In / done</TableHead>
+              <TableHead>Cycle</TableHead>
+              <TableHead>Takeover</TableHead>
+              <TableHead>AI pauses</TableHead>
+              <TableHead>Lock → commit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -68,7 +71,7 @@ export function PeopleTable({ rows }: { rows: PersonRow[] }) {
                 <TableCell>
                   <div className="flex w-36 flex-col gap-1">
                     <span className="font-heading tabular-nums">
-                      {r.d08_median == null ? "—" : `${formatNumber(r.d08_median)} lần`}
+                      {r.d08_median == null ? "—" : `${formatNumber(r.d08_median)}×`}
                     </span>
                     <StackedBar
                       size="sm"
@@ -91,16 +94,16 @@ export function PeopleTable({ rows }: { rows: PersonRow[] }) {
         {rows.map((r) => (
           <div key={r.developer_id} className="panel panel-pad flex flex-col gap-3">
             <div className="text-sm font-semibold">{r.name}</div>
-            <Row label="Vào / xong" value={`${formatNumber(r.d01_committed)}/${formatNumber(r.stories)}`}>
+            <Row label="In / done" value={`${formatNumber(r.d01_committed)}/${formatNumber(r.stories)}`}>
               <Meter value={r.d01_committed} max={Math.max(r.stories, 1)} />
             </Row>
-            <Row label="Thời gian" value={fmtDur(r.d02_median_ms)} />
-            <Row label="Làm hộ" value={pctOrDash(r.d03_takeover_rate)}>
+            <Row label="Cycle" value={fmtDur(r.d02_median_ms)} />
+            <Row label="Takeover" value={pctOrDash(r.d03_takeover_rate)}>
               <Meter value={r.d03_takeover_rate ?? 0} max={1} tone="rework" />
             </Row>
             <Row
-              label="AI dừng"
-              value={r.d08_median == null ? "—" : `${formatNumber(r.d08_median)} lần`}
+              label="AI pauses"
+              value={r.d08_median == null ? "—" : `${formatNumber(r.d08_median)}×`}
             >
               <StackedBar
                 size="sm"
@@ -110,7 +113,7 @@ export function PeopleTable({ rows }: { rows: PersonRow[] }) {
                 ]}
               />
             </Row>
-            <Row label="Khóa → commit" value={pctOrDash(r.d04_lock_then_commit)} />
+            <Row label="Lock → commit" value={pctOrDash(r.d04_lock_then_commit)} />
           </div>
         ))}
       </div>

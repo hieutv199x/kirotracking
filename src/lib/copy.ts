@@ -1,60 +1,60 @@
 import type { LoopStage } from "./catalog";
 
 export const STAGE_HINTS: Record<LoopStage, string> = {
-  intake: "Người nhập user story vào vòng.",
-  spec_gen: "AI viết tài liệu kỹ thuật, so với code hiện có và story trước.",
-  spec_lock: "Người chốt spec. AI dừng chờ — cổng bắt buộc, kể cả khi khóa ngay lần đầu.",
-  testcase: "Sinh test từ spec đã khóa, trước khi viết code.",
-  implement: "Viết/sửa code trên spec và testcase đã có.",
-  test: "Chạy bộ test đã gen (cộng test sẵn của repo).",
-  review: "Cổng chất lượng trước commit. Fail thì quay implement / test / spec.",
-  commit: "Story hoàn tất loop khi commit thành công.",
+  intake: "Human enters the user story into the loop.",
+  spec_gen: "AI drafts the tech spec against current code and prior stories.",
+  spec_lock: "Human locks the spec. AI waits — required gate, even on first pass.",
+  testcase: "Generate tests from the locked spec before writing code.",
+  implement: "Write or change code against the locked spec and tests.",
+  test: "Run the generated suite (plus existing repo tests).",
+  review: "Quality gate before commit. Fail sends work back.",
+  commit: "Story completes the loop when commit succeeds.",
 };
 
 export const EVENT_LABELS: Record<string, string> = {
-  story_received: "Story vào vòng",
-  ready: "Story đủ để gen spec",
-  spec_gen_started: "Bắt đầu gen spec",
-  spec_gen_round: "Một vòng gen spec",
-  spec_submitted_for_lock: "Trình spec để người khóa",
-  spec_locked: "Người đã khóa spec",
-  spec_returned: "Người trả spec, gen lại",
-  testcase_gen_started: "Bắt đầu gen testcase",
-  testcase_gen_completed: "Xong gen testcase",
-  testcase_gen_round: "Một vòng gen testcase",
-  implement_started: "Bắt đầu implement",
-  implement_completed: "Xong implement",
-  implement_round: "Một vòng implement",
-  test_started: "Bắt đầu chạy test",
-  test_run_completed: "Một lần chạy test",
-  test_passed: "Test xanh",
-  test_failed: "Test fail",
-  review_started: "Bắt đầu review",
-  review_round_completed: "Một vòng review",
-  review_passed: "Review đạt",
-  review_failed: "Review không đạt",
-  refine_with_human_started: "AI dừng để chốt với người",
-  refine_with_human_resumed: "AI chạy tiếp sau khi người chốt",
-  committed: "Đã commit",
-  blocked: "Bị chặn ngoài loop",
-  unblocked: "Hết chặn",
-  human_intervention: "Người làm hộ, không trả AI",
-  cancelled: "Hủy story",
+  story_received: "Story entered the loop",
+  ready: "Story ready for spec gen",
+  spec_gen_started: "Spec gen started",
+  spec_gen_round: "Spec gen round",
+  spec_submitted_for_lock: "Spec submitted for lock",
+  spec_locked: "Spec locked by human",
+  spec_returned: "Spec returned for rewrite",
+  testcase_gen_started: "Testcase gen started",
+  testcase_gen_completed: "Testcase gen finished",
+  testcase_gen_round: "Testcase gen round",
+  implement_started: "Implement started",
+  implement_completed: "Implement finished",
+  implement_round: "Implement round",
+  test_started: "Tests started",
+  test_run_completed: "Test run finished",
+  test_passed: "Tests passed",
+  test_failed: "Tests failed",
+  review_started: "Review started",
+  review_round_completed: "Review round",
+  review_passed: "Review passed",
+  review_failed: "Review failed",
+  refine_with_human_started: "AI paused for human decision",
+  refine_with_human_resumed: "AI resumed after human decision",
+  committed: "Committed",
+  blocked: "Blocked outside the loop",
+  unblocked: "Unblocked",
+  human_intervention: "Human takeover (not handed back to AI)",
+  cancelled: "Story cancelled",
 };
 
 export const REWORK_LABELS: Record<string, string> = {
-  spec: "trả spec",
+  spec: "spec return",
   test: "test fail",
   review: "review fail",
 };
 
 export function reworkPhrase(branches: string[]) {
-  if (branches.length === 0) return "không phải làm lại";
-  return `phải làm lại vì ${branches.map((b) => REWORK_LABELS[b] ?? b).join(", ")}`;
+  if (branches.length === 0) return "no rework";
+  return `rework due to ${branches.map((b) => REWORK_LABELS[b] ?? b).join(", ")}`;
 }
 
 export const STATUS_LABELS = {
-  open: "đang mở",
-  committed: "đã commit",
-  cancelled: "đã hủy",
+  open: "open",
+  committed: "committed",
+  cancelled: "cancelled",
 } as const;

@@ -21,7 +21,7 @@ export default async function PeoplePage({
   const rows = getPeople(ORG_ID, period, scope);
   return (
     <div className="flex flex-col gap-5">
-      <PageTitle title="Theo người" subtitle="Throughput và tín hiệu loop theo developer." />
+      <PageTitle title="By person" subtitle="Throughput and loop signals per developer." />
       {!orgHasAnyStory(ORG_ID) ? (
         <OrgEmpty />
       ) : rows.length === 0 ? (

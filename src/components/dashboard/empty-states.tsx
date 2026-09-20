@@ -9,7 +9,7 @@ export function OrgEmpty() {
   return (
     <Empty className="border">
       <EmptyHeader>
-        <EmptyTitle>Chưa có story.</EmptyTitle>
+        <EmptyTitle>No stories yet.</EmptyTitle>
       </EmptyHeader>
     </Empty>
   );
@@ -19,7 +19,7 @@ export function PeriodEmpty({ period }: { period: Period }) {
   return (
     <Empty className="border">
       <EmptyHeader>
-        <EmptyTitle>Không có story trong {PERIOD_LABELS[period].toLowerCase()}.</EmptyTitle>
+        <EmptyTitle>No stories in {PERIOD_LABELS[period].toLowerCase()}.</EmptyTitle>
       </EmptyHeader>
     </Empty>
   );
@@ -29,7 +29,7 @@ export function FunnelEmpty() {
   return (
     <Empty className="border">
       <EmptyHeader>
-        <EmptyTitle>Phễu chưa đủ 8 bước.</EmptyTitle>
+        <EmptyTitle>Funnel does not have all 8 steps yet.</EmptyTitle>
       </EmptyHeader>
     </Empty>
   );
@@ -39,13 +39,13 @@ export function MeEmpty() {
   return (
     <Empty className="border">
       <EmptyHeader>
-        <EmptyTitle>Bạn chưa có story trong kỳ này.</EmptyTitle>
+        <EmptyTitle>You have no stories in this period.</EmptyTitle>
       </EmptyHeader>
     </Empty>
   );
 }
 
-export function ReadError({ message = "Không tải được tổng quan." }: { message?: string }) {
+export function ReadError({ message = "Could not load overview." }: { message?: string }) {
   return (
     <Empty className="border">
       <EmptyHeader>

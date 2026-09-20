@@ -19,12 +19,12 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <select
-        aria-label="Bước"
+        aria-label="Step"
         className="h-8 cursor-pointer rounded-md border border-input bg-card px-2 text-sm transition-colors duration-200 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
         value={params.get("stage") ?? "all"}
         onChange={(e) => set("stage", e.target.value)}
       >
-        <option value="all">Mọi bước</option>
+        <option value="all">All steps</option>
         {LOOP_STAGES.map((s) => (
           <option key={s} value={s}>
             {STAGE_LABELS[s]}
@@ -33,12 +33,12 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
       </select>
       {showPerson ? (
         <select
-          aria-label="Người"
+          aria-label="Person"
           className="h-8 cursor-pointer rounded-md border border-input bg-card px-2 text-sm transition-colors duration-200 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
           value={params.get("person") ?? "all"}
           onChange={(e) => set("person", e.target.value)}
         >
-          <option value="all">Mọi người</option>
+          <option value="all">Everyone</option>
           {DEVELOPERS.map((d) => (
             <option key={d.id} value={d.id}>
               {d.name}
@@ -52,7 +52,7 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
         className={cn("cursor-pointer transition-colors duration-200")}
         onClick={() => set("rework", params.get("rework") === "1" ? "" : "1")}
       >
-        Làm lại
+        Rework
       </Button>
       <Button
         size="sm"
@@ -60,7 +60,7 @@ export function StoryFilters({ showPerson }: { showPerson: boolean }) {
         className={cn("cursor-pointer transition-colors duration-200")}
         onClick={() => set("d08lock", params.get("d08lock") === "3" ? "" : "3")}
       >
-        Khóa spec ≥ 3
+        Spec lock ≥ 3
       </Button>
     </div>
   );

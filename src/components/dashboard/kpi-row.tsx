@@ -12,21 +12,21 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
   return (
     <div className="reveal grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Kpi
-        label="Đã commit"
-        hint="Story đi hết tám bước đến commit."
+        label="Committed"
+        hint="Stories that finished all eight steps through commit."
         value={data.committed === 0 ? "—" : formatNumber(data.committed)}
-        unit="story"
-        quiet={data.entered === 0 ? "Chưa có vào vòng" : `${formatNumber(data.entered)} vào`}
+        unit="stories"
+        quiet={data.entered === 0 ? "None entered yet" : `${formatNumber(data.entered)} entered`}
       >
         <Meter value={data.committed} max={Math.max(data.entered, 1)} tone="work" />
       </Kpi>
 
       <Kpi
-        label="Thời gian xong"
-        hint="Từ story vào vòng đến commit. Trung vị, không trung bình."
+        label="Cycle time"
+        hint="From loop entry to commit. Median, not mean."
         value={cycle?.value ?? "—"}
         unit={cycle?.unit ?? ""}
-        quiet={p90 ? `p90 ${p90.value} ${p90.unit}` : "Chưa có commit"}
+        quiet={p90 ? `p90 ${p90.value} ${p90.unit}` : "No commits yet"}
       >
         <Meter
           value={data.cycle_median_ms ?? 0}
@@ -36,17 +36,17 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
       </Kpi>
 
       <Kpi
-        label="Làm lại"
-        hint="Story đã đi tiếp rồi phải quay bước trước."
+        label="Rework"
+        hint="Stories that advanced, then had to go back a step."
         value={rework == null ? "—" : `${rework}%`}
         unit=""
         quiet={
           rework == null
-            ? "Chưa đủ mẫu"
+            ? "Not enough sample"
             : rework === 0
-              ? "Không quay bước"
+              ? "No step-backs"
               : data.rework_rounds_median
-                ? `trung vị ${formatNumber(data.rework_rounds_median)} vòng`
+                ? `median ${formatNumber(data.rework_rounds_median)} rounds`
                 : null
         }
         alert={rework != null && rework >= 30}
@@ -55,14 +55,14 @@ export function KpiRow({ data }: { data: OverviewPayload }) {
       </Kpi>
 
       <Kpi
-        label="AI dừng"
-        hint="Mỗi lần AI tạm dừng để người chốt. Cột đặc = khóa spec, mờ = review."
+        label="AI pauses"
+        hint="Times AI paused for a human decision. Solid = spec lock, muted = review."
         value={data.d08_median == null ? "—" : formatNumber(data.d08_median)}
-        unit={data.d08_median == null ? "" : "lần"}
+        unit={data.d08_median == null ? "" : "×"}
         quiet={
           data.d08_median == null
-            ? "Chưa có commit"
-            : `${formatNumber(data.d08_spec_lock_median ?? 0)} khóa · ${formatNumber(data.d08_review_median ?? 0)} review`
+            ? "No commits yet"
+            : `${formatNumber(data.d08_spec_lock_median ?? 0)} lock · ${formatNumber(data.d08_review_median ?? 0)} review`
         }
       >
         <StackedBar

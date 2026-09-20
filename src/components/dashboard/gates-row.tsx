@@ -6,24 +6,27 @@ import type { OverviewPayload } from "@/lib/types";
 export function GatesRow({ data }: { data: OverviewPayload }) {
   const gates = [
     {
-      title: "Khóa spec",
+      title: "Spec lock",
       value: pctInt(data.lk02),
-      hint: "Khóa ngay lần trình đầu, không trả gen lại.",
+      hint: "Locked on the first submission — no rewrite loop.",
     },
     {
-      title: "Test xanh",
+      title: "Tests green",
       value: pctInt(data.te01),
-      hint: "Xanh ngay lần test đầu sau implement.",
+      hint: "Green on the first test run after implement.",
     },
     {
-      title: "Review đạt",
+      title: "Review pass",
       value: pctInt(data.rv01),
-      hint: "Pass review ngay vòng đầu.",
+      hint: "Passed review on the first round.",
     },
   ];
   return (
     <section className="reveal flex flex-col gap-3" style={{ animationDelay: "80ms" }}>
-      <SectionHead title="Cổng đầu" hint="Tỷ lệ đạt ngay lần đầu. Thanh càng đầy càng ít bị trả." />
+      <SectionHead
+        title="First-pass gates"
+        hint="Share that pass on the first attempt. Fuller bar = less rework."
+      />
       <div className="grid gap-3 md:grid-cols-3">
         {gates.map((g) => {
           const weak = g.value != null && g.value < 50;
