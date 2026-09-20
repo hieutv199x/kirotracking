@@ -46,3 +46,7 @@ next-env.d.ts
 /data/*.sqlite
 /data/*.sqlite-*
 /agent-tools/
+
+# python (ui-ux-pro-max skill scripts)
+**/__pycache__/
+*.py[cod]
