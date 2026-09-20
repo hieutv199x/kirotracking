@@ -11,10 +11,10 @@ export type Viewer = {
 
 function resolve(value: string | undefined | null): Viewer {
   if (!value || value === "lead") {
-    return { id: "lead", name: "Lead kỹ thuật", role: "lead" };
+    return { id: "lead", name: "Engineering lead", role: "lead" };
   }
   const dev = DEVELOPERS.find((d) => d.id === value);
-  if (!dev) return { id: "lead", name: "Lead kỹ thuật", role: "lead" };
+  if (!dev) return { id: "lead", name: "Engineering lead", role: "lead" };
   return { id: dev.id, name: dev.name, role: "developer" };
 }
 
